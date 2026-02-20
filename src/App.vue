@@ -1,29 +1,29 @@
 <template>
-  <div>
-    <h1>Respuesta del Back: {{ mensaje }}</h1>
-    <button @click="conectar">Probar Conexión</button>
+  <div id="app">
+    <LoginView />
   </div>
 </template>
 
 <script>
-import axios from 'axios';
+import LoginView from './components/LoginView.vue';
 
 export default {
-  data() {
-    return {
-      mensaje: 'Esperando...'
-    }
-  },
-  methods: {
-    async conectar() {
-      try {
-        // Asegúrate de usar el puerto que te dio php artisan serve
-        const res = await axios.get('http://127.0.0.1:8000/api/saludo');
-        this.mensaje = res.data.mensaje;
-      } catch (error) {
-        this.mensaje = "Error: " + error.message;
-      }
-    }
+  name: 'App',
+  components: {
+    LoginView
   }
 }
 </script>
+
+<style>
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #050505;
+}
+
+#app {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+</style>
