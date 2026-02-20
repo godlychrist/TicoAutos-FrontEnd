@@ -6,7 +6,7 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue';
-import loginView from './components/loginView.vue';
+import loginView from './components/LoginView.vue';
 import vehicleListView from './components/vehicleListView.vue';
 
 const isAuthenticated = ref(false);
