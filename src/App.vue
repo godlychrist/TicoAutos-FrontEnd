@@ -1,72 +1,39 @@
 <template>
   <div id="app">
-    <h1>TicoAutos</h1>
-    <div class="auth-box">
-      <button @click="currentView = 'login'">Ir a Login</button>
-      <button @click="currentView = 'register'">Ir a Registro</button>
-    </div>
-    
-    <LoginForm v-if="currentView === 'login'" />
-    <RegisterForm v-if="currentView === 'register'" />
-
-    <!-- Sección de prueba de Cris (Merge) -->
-    <div class="debug-section" v-if="mensaje">
-      <hr>
-      <h3>Prueba de Conexión (Cris):</h3>
-      <p>Respuesta del Back: {{ mensaje }}</p>
-      <button @click="conectar">Probar Conexión</button>
-    </div>
+    <component :is="currentView" />
   </div>
 </template>
 
-<script>
-import LoginForm from './components/LoginForm.vue'
-import RegisterForm from './components/RegisterForm.vue'
-import axios from 'axios'
+<script setup>
+import { ref, computed, onMounted } from 'vue';
+import loginView from './components/loginView.vue';
+import vehicleListView from './components/vehicleListView.vue';
 
-export default {
-  name: 'App',
-  components: {
-    LoginForm,
-    RegisterForm
-  },
-  data() {
-    return {
-      currentView: 'login',
-      mensaje: ''
-    }
-  },
-  methods: {
-    async conectar() {
-      try {
-        const response = await axios.get('http://localhost:8000/api/user')
-        this.mensaje = JSON.stringify(response.data)
-      } catch (error) {
-        this.mensaje = 'Error al conectar: ' + error.message
-      }
-    }
-  }
-}
+const isAuthenticated = ref(false);
+
+onMounted(() => {
+  isAuthenticated.value = !!localStorage.getItem('token');
+});
+
+const currentView = computed(() => {
+  return isAuthenticated.value ? vehicleListView : loginView;
+});
 </script>
 
+
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700;800&display=swap');
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #050505;
+  font-family: 'Montserrat', sans-serif;
+}
+
 #app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 40px;
-}
-.auth-box {
-  margin-bottom: 20px;
-}
-button {
-  margin: 0 10px;
-  padding: 8px 16px;
-  cursor: pointer;
-}
-.debug-section {
-  margin-top: 50px;
-  padding: 20px;
-  background-color: #f9f9f9;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-family: 'Montserrat', sans-serif;
 }
 </style>
