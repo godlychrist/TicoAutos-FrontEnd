@@ -1,26 +1,29 @@
 <template>
-  <img alt="Vue logo" src="./assets/logo.png">
-  <HelloWorld msg="Welcome to Your Vue.js App"/>
+  <div>
+    <h1>Respuesta del Back: {{ mensaje }}</h1>
+    <button @click="conectar">Probar Conexión</button>
+  </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+import axios from 'axios';
 
 export default {
-  name: 'App',
-  components: {
-    HelloWorld
+  data() {
+    return {
+      mensaje: 'Esperando...'
+    }
+  },
+  methods: {
+    async conectar() {
+      try {
+        // Asegúrate de usar el puerto que te dio php artisan serve
+        const res = await axios.get('http://127.0.0.1:8000/api/saludo');
+        this.mensaje = res.data.mensaje;
+      } catch (error) {
+        this.mensaje = "Error: " + error.message;
+      }
+    }
   }
 }
 </script>
-
-<style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
-}
-</style>
