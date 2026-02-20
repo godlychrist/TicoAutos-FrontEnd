@@ -10,7 +10,10 @@
     
     <div class="card-info">
       <div class="header">
-        <span class="brand">{{ vehicle.brand }}</span>
+        <div class="brand-info">
+          <img v-if="vehicle.brand.toLowerCase().includes('ferrari')" src="../assets/ferrari-logo.png" alt="Ferrari" class="card-brand-logo">
+          <span class="brand">{{ vehicle.brand }}</span>
+        </div>
         <h3 class="name">{{ vehicle.name }}</h3>
       </div>
       
@@ -115,6 +118,18 @@ defineProps({
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+}
+
+.brand-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.card-brand-logo {
+  height: 20px;
+  width: auto;
 }
 
 .brand {
