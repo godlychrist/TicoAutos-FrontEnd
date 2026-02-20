@@ -4,7 +4,7 @@ import authBrandSide from './authBrandSide.vue';
 import authInput from './authInput.vue';
 import socialLogins from './socialLogins.vue';
 
-const { form, isLogin, isLoading, toggleAuthMode, handleSubmit } = useAuth();
+const { form, isLogin, isLoading, error, toggleAuthMode, handleSubmit } = useAuth();
 
 const handleSocialLogin = (platform) => {
   alert(`Click en ${platform}`);
@@ -30,6 +30,11 @@ const handleSocialLogin = (platform) => {
             <div class="header-text">
               <h2>{{ isLogin ? 'Bienvenido' : 'Crear Cuenta' }}</h2>
               <p>{{ isLogin ? 'Inicia sesión para continuar con tu viaje.' : 'Únete a la flota más exclusiva.' }}</p>
+            </div>
+
+            <!-- Mensaje de Error -->
+            <div v-if="error" class="error-banner">
+              {{ error }}
             </div>
 
             <form @submit.prevent="handleSubmit" class="auth-form">
@@ -99,4 +104,22 @@ const handleSocialLogin = (platform) => {
 
 <style scoped>
 @import "../assets/styles/auth.css";
+
+.error-banner {
+  background: rgba(220, 38, 38, 0.1);
+  border-left: 4px solid #dc2626;
+  color: #dc2626;
+  padding: 12px;
+  margin-bottom: 20px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  border-radius: 4px;
+  animation: shake 0.4s ease;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
 </style>
