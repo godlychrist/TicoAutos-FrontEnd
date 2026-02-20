@@ -1,15 +1,30 @@
 <template>
-  <img alt="Vue logo" src="./assets/logo.png">
-  <HelloWorld msg="Welcome to Your Vue.js App"/>
+  <div id="app">
+    <h1>TicoAutos</h1>
+    <div class="auth-box">
+      <button @click="currentView = 'login'">Ir a Login</button>
+      <button @click="currentView = 'register'">Ir a Registro</button>
+    </div>
+    
+    <LoginForm v-if="currentView === 'login'" />
+    <RegisterForm v-if="currentView === 'register'" />
+  </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+import LoginForm from './components/LoginForm.vue'
+import RegisterForm from './components/RegisterForm.vue'
 
 export default {
   name: 'App',
   components: {
-    HelloWorld
+    LoginForm,
+    RegisterForm
+  },
+  data() {
+    return {
+      currentView: 'login'
+    }
   }
 }
 </script>
@@ -17,10 +32,16 @@ export default {
 <style>
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
-  margin-top: 60px;
+  margin-top: 40px;
+}
+.auth-box {
+  margin-bottom: 20px;
+}
+button {
+  margin: 0 10px;
+  padding: 8px 16px;
+  cursor: pointer;
 }
 </style>
