@@ -40,6 +40,7 @@ export default {
           password: this.password
         });
         
+        // Guardar token y redirigir
         localStorage.setItem('token', response.data.access_token);
         alert('¡Login exitoso!');
         console.log('User data:', response.data);
