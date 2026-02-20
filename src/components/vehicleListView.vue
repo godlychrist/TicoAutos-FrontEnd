@@ -1,7 +1,10 @@
 <template>
   <div class="vehicles-page">
     <nav class="top-nav">
-      <div class="logo">TICO<span>AUTOS</span></div>
+      <div class="logo-container">
+        <img src="../assets/ferrari-logo.png" alt="Ferrari Logo" class="nav-logo">
+        <div class="logo">TICO<span>AUTOS</span></div>
+      </div>
       <div class="user-info">
         <span class="username" v-if="user">{{ user.username }}</span>
         <button @click="handleLogout" class="logout-btn">Salir</button>
@@ -86,6 +89,23 @@ const handleLogout = () => {
   top: 0;
   z-index: 100;
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.logo-container {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.nav-logo {
+  height: 60px;
+  width: auto;
+  filter: drop-shadow(0 0 10px rgba(220, 38, 38, 0.2));
+  transition: transform 0.3s ease;
+}
+
+.nav-logo:hover {
+  transform: scale(1.1);
 }
 
 .logo {
