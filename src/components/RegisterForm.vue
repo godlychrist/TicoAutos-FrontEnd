@@ -55,7 +55,13 @@ export default {
         alert('¡Registro exitoso! Ya puedes iniciar sesión.');
         console.log('User registered:', response.data);
       } catch (err) {
-        this.error = 'Error en el registro. Verifica los datos.';
+        if (err.response && err.response.data) {
+          // Si Laravel devuelve errores de validación, los mostramos
+          const errors = err.response.data;
+          this.error = Object.values(errors).flat().join(' ');
+        } else {
+          this.error = 'Error en el registro. Verifica los datos.';
+        }
         console.error(err);
       } finally {
         this.loading = false;
