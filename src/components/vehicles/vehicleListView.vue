@@ -14,14 +14,12 @@ defineEmits(['logout']);
 const {
   vehicles,
   isModalOpen,
-  openModal
+  openModal,
+  fetchVehicles
 } = useVehicles();
 
-// Datos estáticos (Mock) - Vacío por ahora
-const mockVehicles = [];
-
 onMounted(() => {
-  // Aquí se podrían llamar funciones de carga inicial
+  fetchVehicles();
 });
 </script>
 
@@ -64,8 +62,8 @@ onMounted(() => {
       <div class="vehicles-grid">
         <!-- Combinación reactiva de datos reales y mock -->
         <vehicleCard 
-          v-for="(vehicle, index) in [...vehicles, ...mockVehicles]" 
-          :key="index" 
+          v-for="(vehicle, index) in vehicles" 
+          :key="vehicle.id || index" 
           :vehicle="vehicle"
           :index="index"
         />
