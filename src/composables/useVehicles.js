@@ -15,6 +15,22 @@ const form = reactive({
     image: null
 });
 
+async function fetchVehicles() {
+    loading.value = true;
+    error.value = null;
+
+    try {
+        const response = await vehicleService.getAll();
+        console.log(response.data);
+        vehicles.value = response.data;
+    } catch (err) {
+        error.value = err.response?.data?.message || "Error al obtener los vehículos";
+        console.error(err);
+    } finally {
+        loading.value = false;
+    }
+}
+
 export function useVehicles() {
 
     const resetForm = () => {
@@ -76,6 +92,7 @@ export function useVehicles() {
     }
 
     return {
+        fetchVehicles,
         openModal,
         closeModal,
         isModalOpen,
