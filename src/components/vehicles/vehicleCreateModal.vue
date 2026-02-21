@@ -1,11 +1,25 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { useVehicles } from '@/composables/useVehicles.js';
 
-const { form, handleCreateVehicle, closeModal, loading, error } = useVehicles();
+const { 
+  form, 
+  handleCreateVehicle, 
+  handleUpdateVehicle, 
+  closeModal, 
+  loading, 
+  error, 
+  isEditMode 
+} = useVehicles();
 
 const fileInput = ref(null);
 const imagePreview = ref(null);
+
+const modalTitle = computed(() => isEditMode.value ? 'Editar Vehículo' : 'Añadir Nuevo Vehículo');
+const submitText = computed(() => {
+  if (loading.value) return 'Procesando...';
+  return isEditMode.value ? 'Guardar Cambios' : 'Crear Vehículo';
+});
 
 const onFileChange = (event) => {
   const file = event.target.files[0];
@@ -23,15 +37,16 @@ const clearImage = () => {
   if (fileInput.value) fileInput.value.value = '';
 };
 
-// Cambiamos handleSubmit para que no dependa de un evento del navegador
 const executeSubmit = async () => {
   if (loading.value) return;
   
   try {
-    const success = await handleCreateVehicle();
+    const success = isEditMode.value 
+      ? await handleUpdateVehicle() 
+      : await handleCreateVehicle();
+      
     if (success) {
       imagePreview.value = null;
-      // Cerramos tranquilamente
       closeModal();
     }
   } catch (err) {
@@ -44,14 +59,14 @@ const executeSubmit = async () => {
   <div class="modal-overlay" @click.self="closeModal">
     <div class="modal-content">
       <header class="modal-header">
-        <h2>Añadir Nuevo Vehículo</h2>
+        <h2>{{ modalTitle }}</h2>
         <button type="button" class="close-btn" @click="closeModal">&times;</button>
       </header>
 
-      <!-- Quitamos el @submit.prevent del form para evitar el conflicto -->
       <div class="create-form">
         <div class="form-grid">
-          <div class="form-group full-width">
+          <!-- Ocultamos la subida de imagen en modo edición para simplificar (opcional) -->
+          <div v-if="!isEditMode" class="form-group full-width">
             <label>Foto del Vehículo</label>
             <div 
               class="file-upload-zone" 
@@ -99,6 +114,13 @@ const executeSubmit = async () => {
             <label>Precio ($)</label>
             <input v-model="form.price" type="number" placeholder="Ej: 275000">
           </div>
+          <div class="form-group full-width" v-if="isEditMode">
+            <label>Estado</label>
+            <select v-model="form.status">
+              <option value="available">Disponible</option>
+              <option value="sold">Vendido</option>
+            </select>
+          </div>
         </div>
 
         <div v-if="error" class="error-message">
@@ -107,14 +129,13 @@ const executeSubmit = async () => {
 
         <div class="form-actions">
           <button type="button" class="cancel-btn" @click="closeModal">Cancelar</button>
-          <!-- Cambiamos el botón a type="button" y usamos @click -->
           <button 
             type="button" 
             class="submit-btn" 
-            :disabled="loading || !imagePreview"
+            :disabled="loading || (!isEditMode && !imagePreview)"
             @click="executeSubmit"
           >
-            {{ loading ? 'Guardando...' : 'Crear Vehículo' }}
+            {{ submitText }}
           </button>
         </div>
       </div>
@@ -123,6 +144,7 @@ const executeSubmit = async () => {
 </template>
 
 <style scoped>
+/* Los mismos estilos que tenías antes */
 .error-message {
   color: #dc2626;
   background: rgba(220, 38, 38, 0.1);
