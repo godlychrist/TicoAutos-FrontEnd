@@ -50,7 +50,7 @@ onMounted(() => {
             <button class="filter-btn">SUV</button>
             <button class="filter-btn">Sport</button>
           </div>
-          <button @click="openModal" class="create-btn">
+          <button @click="openModal(null)" class="create-btn">
             <span class="plus-icon">+</span> Crear Vehículo
           </button>
         </div>
