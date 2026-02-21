@@ -14,14 +14,15 @@ defineEmits(['logout']);
 const {
   vehicles,
   isModalOpen,
-  openModal
+  openModal,
+  fetchVehicles
 } = useVehicles();
 
-// Datos estáticos (Mock) - Vacío por ahora
-const mockVehicles = [];
 
-onMounted(() => {
-  // Aquí se podrían llamar funciones de carga inicial
+onMounted(async () => {
+  if(fetchVehicles) {
+    await fetchVehicles();
+  }
 });
 </script>
 
@@ -58,17 +59,15 @@ onMounted(() => {
         </div>
       </header>
 
-      <!-- El modal ahora usa el estado compartido -->
-      <vehicleCreateModal v-if="isModalOpen" />
-
       <div class="vehicles-grid">
         <!-- Combinación reactiva de datos reales y mock -->
         <vehicleCard 
-          v-for="(vehicle, index) in [...vehicles, ...mockVehicles]" 
+          v-for="(vehicle, index) in vehicles" 
           :key="index" 
           :vehicle="vehicle"
           :index="index"
         />
+        <p v-if="vehicles.length === 0" class="empty-msg">No hay vehículos disponibles.</p>
       </div>
     </main>
   </div>
