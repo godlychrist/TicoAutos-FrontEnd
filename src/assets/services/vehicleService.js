@@ -19,11 +19,16 @@ const vehicleService = {
         }
     },
     async create(vehicleData) {
-        const response = await api.post('/vehicles', vehicleData);
+        const response = await api.post('/vehicles', vehicleData, {
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            }
+        });
         return response.data;
     },
     async update(vehicleData) {
-        const response = await api.put(`/vehicles/${vehicleData.id}`, vehicleData);
+        const id = vehicleData._id || vehicleData.id;
+        const response = await api.put(`/vehicles/${id}`, vehicleData);
         return response.data;
     },
     async delete(vehicleId) {
