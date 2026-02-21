@@ -1,7 +1,7 @@
 <template>
   <div class="brand-side">
     <div class="brand-content">
-      <img src="../assets/ferrari-logo.png" alt="Ferrari Logo" class="brand-logo">
+      <img src="../../assets/ferrari-logo.png" alt="Ferrari Logo" class="brand-logo">
       <h1 class="premium-title">TICO<span>AUTOS</span></h1>
       <p class="premium-subtitle">EXCLUSIVIDAD EN CADA KILÓMETRO</p>
       <div class="decorative-line"></div>
@@ -23,8 +23,5 @@
 }
 </style>
 
-<script>
-export default {
-  name: 'authBrandSide'
-}
+<script setup>
 </script>

@@ -1,0 +1,140 @@
+<script setup>
+import { ref } from 'vue';
+import { useVehicles } from '@/composables/useVehicles.js';
+
+const { form, handleCreateVehicle, closeModal, loading, error } = useVehicles();
+
+const fileInput = ref(null);
+const imagePreview = ref(null);
+
+const onFileChange = (event) => {
+  const file = event.target.files[0];
+  if (file) {
+    form.image = file;
+    const reader = new FileReader();
+    reader.onload = (e) => { imagePreview.value = e.target.result; };
+    reader.readAsDataURL(file);
+  }
+};
+
+const clearImage = () => {
+  imagePreview.value = null;
+  form.image = null;
+  if (fileInput.value) fileInput.value.value = '';
+};
+
+// Cambiamos handleSubmit para que no dependa de un evento del navegador
+const executeSubmit = async () => {
+  if (loading.value) return;
+  
+  try {
+    const success = await handleCreateVehicle();
+    if (success) {
+      imagePreview.value = null;
+      // Cerramos tranquilamente
+      closeModal();
+    }
+  } catch (err) {
+    console.error("Error en ejecución:", err);
+  }
+};
+</script>
+
+<template>
+  <div class="modal-overlay" @click.self="closeModal">
+    <div class="modal-content">
+      <header class="modal-header">
+        <h2>Añadir Nuevo Vehículo</h2>
+        <button type="button" class="close-btn" @click="closeModal">&times;</button>
+      </header>
+
+      <!-- Quitamos el @submit.prevent del form para evitar el conflicto -->
+      <div class="create-form">
+        <div class="form-grid">
+          <div class="form-group full-width">
+            <label>Foto del Vehículo</label>
+            <div 
+              class="file-upload-zone" 
+              :class="{ 'has-image': imagePreview }"
+              @click="fileInput.click()" 
+            >
+              <input 
+                type="file" 
+                ref="fileInput" 
+                class="hidden-input" 
+                accept="image/*"
+                @change="onFileChange"
+              >
+              <div v-if="!imagePreview" class="upload-placeholder">
+                <span class="upload-icon">📸</span>
+                <p>Haz clic para subir una foto</p>
+                <span class="upload-hint">Formatos soportados: JPG, PNG, WebP</span>
+              </div>
+              <img v-else :src="imagePreview" alt="Preview" class="image-preview" />
+              
+              <button 
+                v-if="imagePreview" 
+                type="button" 
+                class="change-photo-btn" 
+                @click.stop="clearImage"
+              >
+                Cambiar Foto
+              </button>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Marca</label>
+            <input v-model="form.brand" type="text" placeholder="Ej: Ferrari">
+          </div>
+          <div class="form-group">
+            <label>Modelo</label>
+            <input v-model="form.model" type="text" placeholder="Ej: F8 Tributo">
+          </div>
+          <div class="form-group">
+            <label>Año</label>
+            <input v-model="form.year" type="number" placeholder="2024">
+          </div>
+          <div class="form-group">
+            <label>Precio ($)</label>
+            <input v-model="form.price" type="number" placeholder="Ej: 275000">
+          </div>
+        </div>
+
+        <div v-if="error" class="error-message">
+          {{ error }}
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="cancel-btn" @click="closeModal">Cancelar</button>
+          <!-- Cambiamos el botón a type="button" y usamos @click -->
+          <button 
+            type="button" 
+            class="submit-btn" 
+            :disabled="loading || !imagePreview"
+            @click="executeSubmit"
+          >
+            {{ loading ? 'Guardando...' : 'Crear Vehículo' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<style scoped>
+.error-message {
+  color: #dc2626;
+  background: rgba(220, 38, 38, 0.1);
+  padding: 10px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  margin-bottom: 15px;
+  border: 1px solid rgba(220, 38, 38, 0.2);
+  text-align: center;
+}
+
+.hidden-input {
+  display: none;
+}
+</style>
