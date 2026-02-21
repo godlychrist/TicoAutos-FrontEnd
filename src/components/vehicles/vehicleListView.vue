@@ -58,6 +58,9 @@ onMounted(async () => {
           </button>
         </div>
       </header>
+      
+      <!-- El modal ahora usa el estado compartido -->
+      <vehicleCreateModal v-if="isModalOpen" />
 
       <div class="vehicles-grid">
         <!-- Combinación reactiva de datos reales y mock -->
