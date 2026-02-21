@@ -21,8 +21,7 @@ async function fetchVehicles() {
 
     try {
         const response = await vehicleService.getAll();
-        console.log(response.data);
-        vehicles.value = response.data;
+        vehicles.value = response;
     } catch (err) {
         error.value = err.response?.data?.message || "Error al obtener los vehículos";
         console.error(err);
@@ -77,8 +76,12 @@ export function useVehicles() {
 
             const response = await vehicleService.create(formData);
 
-            if (response.data && response.data.vehicle) {
-                vehicles.value.push(response.data.vehicle);
+            // vehicleService.create() ya devuelve response.data, así que no hay .data extra
+            if (response && response.vehicle) {
+                vehicles.value.push(response.vehicle);
+            } else {
+                // Si el servidor no devuelve el objeto, recargamos la lista completa
+                await fetchVehicles();
             }
 
             return true;
