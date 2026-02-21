@@ -112,7 +112,7 @@ const handleFormSubmit = async () => {
             emit('login', response.data.user || response.data);
         } else {
             // Lógica de registro...
-            const response = await authService.register({
+            await authService.register({
                 username: username.value,
                 password: password.value
                 // Otros campos si son necesarios
