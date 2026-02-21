@@ -6,23 +6,41 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import loginView from './components/auth/loginView.vue';
 import vehicleListView from './components/vehicles/vehicleListView.vue';
 
 const isLoggedIn = ref(false);
 const currentUser = ref({ username: '' });
 
+// Verificar si hay sesión guardada al cargar la aplicación
+onMounted(() => {
+  const savedUser = localStorage.getItem('user');
+  const token = localStorage.getItem('token');
+  
+  if (savedUser && token) {
+    try {
+      currentUser.value = JSON.parse(savedUser);
+      isLoggedIn.value = true;
+    } catch (e) {
+      console.error("Error al restaurar sesión:", e);
+      localStorage.removeItem('user');
+      localStorage.removeItem('token');
+    }
+  }
+});
+
 const handleLogin = (userData) => {
-  currentUser.value.username = userData.username;
+  currentUser.value = userData;
   isLoggedIn.value = true;
-  // Guardamos el objeto completo del usuario que viene del backend
-  localStorage.setItem('user', JSON.stringify(userData));
+  // Los datos ya se guardan en el localStorage dentro de loginView.vue
 };
 
 const handleLogout = () => {
   isLoggedIn.value = false;
-  currentUser.value.username = '';
+  currentUser.value = { username: '' };
+  localStorage.removeItem('user');
+  localStorage.removeItem('token');
 };
 </script>
 
