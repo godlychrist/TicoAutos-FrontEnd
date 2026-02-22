@@ -1,9 +1,7 @@
 import { ref, reactive } from 'vue';
-import vehicleService from '@/assets/services/vehicleService';
+import vehicleService from '@/services/vehicleService';
 
 const isModalOpen = ref(false);
-const isEditMode = ref(false);
-const selectedVehicleId = ref(null);
 const vehicles = ref([]);
 const loading = ref(false);
 const error = ref(null);
@@ -25,19 +23,17 @@ export function useVehicles() {
         form.price = '';
         form.status = 'available';
         form.image = null;
-        isEditMode.value = false;
-        selectedVehicleId.value = null;
+
     };
 
     const openModal = (vehicle = null) => {
         if (vehicle) {
-            isEditMode.value = true;
-            selectedVehicleId.value = vehicle._id || vehicle.id;
             form.model = vehicle.model;
             form.brand = vehicle.brand;
             form.year = vehicle.year;
             form.price = vehicle.price;
             form.status = vehicle.status;
+            form.image = vehicle.image;
         } else {
             resetForm();
         }
@@ -53,8 +49,6 @@ export function useVehicles() {
         loading.value = true;
         error.value = null;
         try {
-            const data = await vehicleService.getAll();
-            vehicles.value = data;
             const formData = new FormData();
             formData.append('brand', form.brand);
             formData.append('model', form.model);
@@ -92,6 +86,28 @@ export function useVehicles() {
         }
     };
 
+    const getVehicles = async () => {
+        loading.value = true;
+        error.value = null; // Limpiamos errores previos
+        try {
+            const data = await vehicleService.getAll();
+            vehicles.value = data;
+
+        } catch (err) {
+            error.value = "Error al cargar los vehículos";
+            vehicles.value = []; // Si falla, que al menos sea un array vacío
+            console.error(err);
+        } finally {
+            loading.value = false;
+        }
+    }
+
+    const imageUrl = (image) => {
+        if (!image) return '';
+        if (image.startsWith('http')) return image;
+        return `http://127.0.0.1:8000/storage/${image}`;
+
+    }
     return {
         isModalOpen,
         vehicles,
@@ -100,7 +116,9 @@ export function useVehicles() {
         form,
         openModal,
         closeModal,
-        handleCreateVehicle
+        handleCreateVehicle,
+        getVehicles,
+        imageUrl
     };
 
 }
