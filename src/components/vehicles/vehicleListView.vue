@@ -15,10 +15,11 @@ const {
   vehicles,
   isModalOpen,
   openModal,
-
+  getVehicles
 } = useVehicles();
 
 onMounted(() => {
+    getVehicles();
 });
 </script>
 
@@ -56,17 +57,17 @@ onMounted(() => {
       </header>
       
       <!-- El modal ahora usa el estado compartido -->
-      <vehicleCreateModal v-if="isModalOpen" />
+      <vehicleCreateModal v-if="isModalOpen" @create="getVehicles"/>
 
       <div class="vehicles-grid">
         <!-- Combinación reactiva de datos reales y mock -->
         <vehicleCard 
           v-for="(vehicle, index) in vehicles" 
+          
           :key="vehicle.id || index" 
           :vehicle="vehicle"
           :index="index"
         />
-        <p v-if="vehicles.length === 0" class="empty-msg">No hay vehículos disponibles.</p>
       </div>
     </main>
   </div>
