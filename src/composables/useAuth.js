@@ -19,6 +19,7 @@ export function useAuth() {
 
     const handleSubmit = async () => {
         isLoading.value = true;
+        error.value = null; // Limpiar errores previos
         try {
             if (isLogin.value) {
                 const response = await authService.login(form);
@@ -29,6 +30,13 @@ export function useAuth() {
                 }
 
             } else {
+                // Validación de contraseña corta en el cliente
+                if (form.password.length < 6) {
+                    error.value = "La contraseña debe tener al menos 6 dígitos";
+                    isLoading.value = false;
+                    return;
+                }
+
                 await authService.register({
                     username: form.username,
                     password: form.password,
@@ -36,9 +44,25 @@ export function useAuth() {
                 });
                 alert("¡Registrado!");
                 isLogin.value = true;
+                // Limpiar campos después de registro exitoso
+                form.username = '';
+                form.password = '';
+                form.confirmPassword = '';
             }
         } catch (err) {
-            error.value = "Error en la operación";
+            // Extraer el mensaje de error del backend si existe
+            if (err.response && err.response.data && err.response.data.error) {
+                error.value = err.response.data.error;
+            } else if (err.response && err.response.data && err.response.data.message) {
+                error.value = err.response.data.message;
+            } else {
+                error.value = "Credenciales incorrectas o error de conexión";
+            }
+
+            // Limpiar campos para que el usuario reintente
+            form.password = '';
+            // Si quieres limpiar también el username opcionalmente:
+            // form.username = ''; 
         } finally {
             isLoading.value = false;
         }

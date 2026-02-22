@@ -18,11 +18,8 @@ const {
   fetchVehicles
 } = useVehicles();
 
-
-onMounted(async () => {
-  if(fetchVehicles) {
-    await fetchVehicles();
-  }
+onMounted(() => {
+  fetchVehicles();
 });
 </script>
 
@@ -53,7 +50,7 @@ onMounted(async () => {
             <button class="filter-btn">SUV</button>
             <button class="filter-btn">Sport</button>
           </div>
-          <button @click="openModal" class="create-btn">
+          <button @click="openModal(null)" class="create-btn">
             <span class="plus-icon">+</span> Crear Vehículo
           </button>
         </div>
@@ -66,7 +63,7 @@ onMounted(async () => {
         <!-- Combinación reactiva de datos reales y mock -->
         <vehicleCard 
           v-for="(vehicle, index) in vehicles" 
-          :key="index" 
+          :key="vehicle.id || index" 
           :vehicle="vehicle"
           :index="index"
         />

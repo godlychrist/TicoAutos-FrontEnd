@@ -108,11 +108,16 @@ const handleFormSubmit = async () => {
                 username: username.value,
                 password: password.value
             });
-            // Emitimos los datos reales que vienen del servidor (incluyendo el _id)
-            emit('login', response.data.user || response.data);
+            
+            const data = response.data;
+            if (data.token) {
+                localStorage.setItem('token', data.token);
+                localStorage.setItem('user', JSON.stringify(data.user || data));
+                emit('login', data.user || data);
+            }
         } else {
             // Lógica de registro...
-            const response = await authService.register({
+            await authService.register({
                 username: username.value,
                 password: password.value
                 // Otros campos si son necesarios
