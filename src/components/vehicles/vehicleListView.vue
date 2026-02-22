@@ -15,11 +15,10 @@ const {
   vehicles,
   isModalOpen,
   openModal,
-  fetchVehicles
+
 } = useVehicles();
 
 onMounted(() => {
-  fetchVehicles();
 });
 </script>
 
