@@ -36,6 +36,7 @@ const executeSubmit = async () => {
     const success = await handleCreateVehicle();
     if (success) {
       imagePreview.value = null;
+      emit('created');
       closeModal();
     }
   } catch (err) {
