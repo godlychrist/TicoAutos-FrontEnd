@@ -1,7 +1,12 @@
 <template>
   <div class="vehicle-card" :style="{ '--delay': index * 0.1 + 's' }">
     <div class="card-image-wrapper">
-      <img :src="vehicle.image" :alt="vehicle.model" class="vehicle-image" />
+      <img 
+        v-if="vehicle.image" 
+        :src="imageUrl(vehicle.image)" 
+        :alt="vehicle.model"
+        class="vehicle-image"
+      />
       <div class="badge">{{ vehicle.status === 'available' ? 'Disponible' : 'Vendido' }}</div>
       
       <!-- Botones de Acción Profesionales -->
@@ -57,7 +62,7 @@ const props = defineProps({
   index: Number
 });
 
-const { handleDeleteVehicle, openModal } = useVehicles();
+const { handleDeleteVehicle, openModal, imageUrl } = useVehicles();
 
 const formatPrice = (price) => {
   return new Intl.NumberFormat('en-US').format(price);
