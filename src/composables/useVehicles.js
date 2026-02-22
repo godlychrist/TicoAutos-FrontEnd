@@ -16,22 +16,6 @@ const form = reactive({
     status: 'available',
     image: null
 });
-
-async function fetchVehicles() {
-    loading.value = true;
-    error.value = null;
-
-    try {
-        const response = await vehicleService.getAll();
-        vehicles.value = response;
-    } catch (err) {
-        error.value = err.response?.data?.message || "Error al obtener los vehículos";
-        console.error(err);
-    } finally {
-        loading.value = false;
-    }
-}
-
 export function useVehicles() {
 
     const resetForm = () => {
@@ -65,26 +49,12 @@ export function useVehicles() {
         resetForm();
     };
 
-    const fetchVehicles = async () => {
-        loading.value = true;
-        try {
-            const data = await vehicleService.getAll();
-            vehicles.value = data.map(v => ({
-                ...v,
-                image: v.image_url ? `http://127.0.0.1:8000${v.image_url}` : 'https://images.unsplash.com/photo-1560958089-b8a1929cea89?auto=format&fit=crop&q=80&w=800'
-            }));
-        } catch (err) {
-            console.error("Error al cargar vehículos:", err);
-            error.value = "No se pudieron cargar los vehículos";
-        } finally {
-            loading.value = false;
-        }
-    };
-
     const handleCreateVehicle = async () => {
         loading.value = true;
         error.value = null;
         try {
+            const data = await vehicleService.getAll();
+            vehicles.value = data;
             const formData = new FormData();
             formData.append('brand', form.brand);
             formData.append('model', form.model);
@@ -107,86 +77,34 @@ export function useVehicles() {
 
             const response = await vehicleService.create(formData);
 
-            if (response && response.vehicle) {
-                const newVehicle = response.vehicle;
-                vehicles.value.push({
-                    ...newVehicle,
-                    image: newVehicle.image_url ? `http://127.0.0.1:8000${newVehicle.image_url}` : 'https://images.unsplash.com/photo-1560958089-b8a1929cea89?auto=format&fit=crop&q=80&w=800'
-                });
+            if (response.data && response.data.vehicle) {
+                vehicles.value.push(response.data.vehicle);
             }
 
             return true;
         } catch (err) {
-            console.error("Error completo:", err);
+            error.value = err.message || 'Error al cargar los vehículos';
             error.value = err.response?.data?.message || "Error al crear el vehículo";
-            return false;
-        } finally {
-            loading.value = false;
-        }
-    }
-
-    const handleUpdateVehicle = async () => {
-        if (!selectedVehicleId.value) return false;
-        loading.value = true;
-        error.value = null;
-        try {
-            const data = {
-                brand: form.brand,
-                model: form.model,
-                year: form.year,
-                price: form.price,
-                status: form.status
-            };
-
-            await vehicleService.update({ ...data, _id: selectedVehicleId.value });
-
-            // Actualizar localmente
-            const index = vehicles.value.findIndex(v => (v._id || v.id) === selectedVehicleId.value);
-            if (index !== -1) {
-                vehicles.value[index] = { ...vehicles.value[index], ...data };
-            }
-
-            return true;
-        } catch (err) {
-            console.error("Error al actualizar:", err);
-            error.value = "No se pudo actualizar el vehículo";
+            console.error(err);
             return false;
         } finally {
             loading.value = false;
         }
     };
 
-    const handleDeleteVehicle = async (id) => {
-        if (!confirm('¿Estás seguro de que quieres eliminar este vehículo?')) return;
-        loading.value = true;
-        try {
-            await vehicleService.delete(id);
-            vehicles.value = vehicles.value.filter(v => (v._id || v.id) !== id);
-            return true;
-        } catch (err) {
-            console.error("Error al eliminar:", err);
-            error.value = "No se pudo eliminar el vehículo";
-            return false;
-        } finally {
-            loading.value = false;
-        }
-    }
-
     return {
-        fetchVehicles,
-        openModal,
-        closeModal,
         isModalOpen,
-        isEditMode,
-        selectedVehicleId,
         vehicles,
         loading,
         error,
         form,
-        fetchVehicles,
-        handleCreateVehicle,
-        handleUpdateVehicle,
-        handleDeleteVehicle,
-        resetForm
+        openModal,
+        closeModal,
+        handleCreateVehicle
     };
+
 }
+
+
+
+
