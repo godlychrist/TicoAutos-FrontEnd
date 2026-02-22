@@ -1,25 +1,17 @@
 <script setup>
-import { ref, computed } from 'vue';
+import { ref } from 'vue';
 import { useVehicles } from '@/composables/useVehicles.js';
 
 const { 
   form, 
   handleCreateVehicle, 
-  handleUpdateVehicle, 
   closeModal, 
   loading, 
-  error, 
-  isEditMode 
+  error 
 } = useVehicles();
 
 const fileInput = ref(null);
 const imagePreview = ref(null);
-
-const modalTitle = computed(() => isEditMode.value ? 'Editar Vehículo' : 'Añadir Nuevo Vehículo');
-const submitText = computed(() => {
-  if (loading.value) return 'Procesando...';
-  return isEditMode.value ? 'Guardar Cambios' : 'Crear Vehículo';
-});
 
 const onFileChange = (event) => {
   const file = event.target.files[0];
@@ -41,10 +33,7 @@ const executeSubmit = async () => {
   if (loading.value) return;
   
   try {
-    const success = isEditMode.value 
-      ? await handleUpdateVehicle() 
-      : await handleCreateVehicle();
-      
+    const success = await handleCreateVehicle();
     if (success) {
       imagePreview.value = null;
       closeModal();
@@ -59,14 +48,13 @@ const executeSubmit = async () => {
   <div class="modal-overlay" @click.self="closeModal">
     <div class="modal-content">
       <header class="modal-header">
-        <h2>{{ modalTitle }}</h2>
+        <h2>Añadir Nuevo Vehículo</h2>
         <button type="button" class="close-btn" @click="closeModal">&times;</button>
       </header>
 
       <div class="create-form">
         <div class="form-grid">
-          <!-- Ocultamos la subida de imagen en modo edición para simplificar (opcional) -->
-          <div v-if="!isEditMode" class="form-group full-width">
+          <div class="form-group full-width">
             <label>Foto del Vehículo</label>
             <div 
               class="file-upload-zone" 
@@ -114,14 +102,7 @@ const executeSubmit = async () => {
             <label>Precio ($)</label>
             <input v-model="form.price" type="number" placeholder="Ej: 275000">
           </div>
-          <div class="form-group full-width" v-if="isEditMode">
-            <label>Estado</label>
-            <select v-model="form.status">
-              <option value="available">Disponible</option>
-              <option value="sold">Vendido</option>
-            </select>
           </div>
-        </div>
 
         <div v-if="error" class="error-message">
           {{ error }}
@@ -132,10 +113,10 @@ const executeSubmit = async () => {
           <button 
             type="button" 
             class="submit-btn" 
-            :disabled="loading || (!isEditMode && !imagePreview)"
+            :disabled="loading || !imagePreview"
             @click="executeSubmit"
           >
-            {{ submitText }}
+            {{ loading ? 'Procesando...' : 'Crear Vehículo' }}
           </button>
         </div>
       </div>
@@ -144,7 +125,7 @@ const executeSubmit = async () => {
 </template>
 
 <style scoped>
-/* Los mismos estilos que tenías antes */
+/* Tus estilos se mantienen intactos */
 .error-message {
   color: #dc2626;
   background: rgba(220, 38, 38, 0.1);
