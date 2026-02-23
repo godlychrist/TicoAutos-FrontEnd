@@ -69,7 +69,19 @@ const formatPrice = (price) => {
 };
 
 const handleDelete = async (id) => {
-  await handleDeleteVehicle(id);
+  // 1. Agregamos una alerta de confirmación nativa
+  const isConfirmed = window.confirm(`¿Estás seguro de que deseas eliminar el ${props.vehicle.brand} ${props.vehicle.model}?`);
+  
+  if (isConfirmed) {
+    // 2. Si dice que sí, llamamos a la función de tu composable
+    const success = await handleDeleteVehicle(id);
+    
+    if (success) {
+      console.log('Vehículo eliminado exitosamente');
+    } else {
+      alert('Hubo un problema al eliminar el vehículo.');
+    }
+  }
 };
 
 const handleEdit = () => {
