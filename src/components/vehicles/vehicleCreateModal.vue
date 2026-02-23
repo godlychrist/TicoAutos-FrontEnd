@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, computed, watch } from 'vue';
 import { useVehicles } from '@/composables/useVehicles.js';
 
 const { 
@@ -7,11 +7,24 @@ const {
   handleCreateVehicle, 
   closeModal, 
   loading, 
-  error 
+  error,
+  updateVehicle,
 } = useVehicles();
 
+const emit = defineEmits(['created', 'updated']);
 const fileInput = ref(null);
 const imagePreview = ref(null);
+
+// 1. WATCH PARA MOSTRAR LA IMAGEN VIEJA
+watch(() => form.image, (newImage) => {
+  if (typeof newImage === 'string' && newImage !== '') {
+    imagePreview.value = newImage.startsWith('http') 
+      ? newImage 
+      : `http://127.0.0.1:8000/storage/${newImage}`;
+  } else if (!newImage) {
+    imagePreview.value = null;
+  }
+}, { immediate: true });
 
 const onFileChange = (event) => {
   const file = event.target.files[0];
@@ -29,14 +42,29 @@ const clearImage = () => {
   if (fileInput.value) fileInput.value.value = '';
 };
 
+// 2. COMPUTED REFORZADO PARA DETECTAR EL ID
+const isEditing = computed(() => {
+  const vehicleId = form.id || form._id;
+  return vehicleId !== null && vehicleId !== undefined && vehicleId !== '';
+});
+
 const executeSubmit = async () => {
   if (loading.value) return;
   
   try {
-    const success = await handleCreateVehicle();
+    const currentId = form.id || form._id;
+    let success = false;
+
+    // 3. DECISIÓN: ¿CREAR O EDITAR?
+    if (isEditing.value) {
+      success = await updateVehicle(currentId);
+    } else {
+      success = await handleCreateVehicle();
+    }
+
     if (success) {
       imagePreview.value = null;
-      emit('created');
+      emit(isEditing.value ? 'updated' : 'created');
       closeModal();
     }
   } catch (err) {
@@ -49,11 +77,13 @@ const executeSubmit = async () => {
   <div class="modal-overlay" @click.self="closeModal">
     <div class="modal-content">
       <header class="modal-header">
-        <h2>Añadir Nuevo Vehículo</h2>
+        <h2>{{ isEditing ? 'Editar Vehículo' : 'Añadir Nuevo Vehículo' }}</h2>
         <button type="button" class="close-btn" @click="closeModal">&times;</button>
       </header>
 
       <div class="create-form">
+        <span style="color: gray; font-size: 10px;">ID detectado: {{ form.id || form._id || 'Ninguno' }}</span>
+
         <div class="form-grid">
           <div class="form-group full-width">
             <label>Foto del Vehículo</label>
@@ -103,7 +133,7 @@ const executeSubmit = async () => {
             <label>Precio ($)</label>
             <input v-model="form.price" type="number" placeholder="Ej: 275000">
           </div>
-          </div>
+        </div>
 
         <div v-if="error" class="error-message">
           {{ error }}
@@ -114,10 +144,10 @@ const executeSubmit = async () => {
           <button 
             type="button" 
             class="submit-btn" 
-            :disabled="loading || !imagePreview"
+            :disabled="loading || (!imagePreview && !isEditing)"
             @click="executeSubmit"
           >
-            {{ loading ? 'Procesando...' : 'Crear Vehículo' }}
+            {{ loading ? 'Procesando...' : (isEditing ? 'Guardar Cambios' : 'Crear Vehículo') }}
           </button>
         </div>
       </div>
