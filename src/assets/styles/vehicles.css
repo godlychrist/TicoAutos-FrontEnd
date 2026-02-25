@@ -174,9 +174,9 @@
 
 /* Vehicle Grid */
 .vehicles-grid {
-    display: flex;
-    flex-direction: column;
-    gap: 40px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
 }
 
 /* Vehicle Card Styles */
@@ -184,23 +184,23 @@
     background: rgba(20, 20, 20, 0.8);
     backdrop-filter: blur(10px);
     border: 1px solid rgba(255, 255, 255, 0.05);
-    border-radius: 24px;
+    border-radius: 18px;
     overflow: hidden;
     transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
     display: flex;
-    flex-direction: row;
-    height: 280px;
+    flex-direction: column;
 }
 
 .vehicle-card:hover {
-    transform: translateX(10px);
+    transform: translateY(-8px);
     border-color: rgba(220, 38, 38, 0.3);
-    box-shadow: 20px 20px 40px rgba(0, 0, 0, 0.4), 0 0 20px rgba(220, 38, 38, 0.1);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 0 0 20px rgba(220, 38, 38, 0.1);
 }
 
 .card-image-wrapper {
     position: relative;
-    width: 40%;
+    width: 100%;
+    height: 180px;
     flex-shrink: 0;
     overflow: hidden;
 }
@@ -217,7 +217,7 @@
 }
 
 .card-info {
-    padding: 30px;
+    padding: 16px;
     flex-grow: 1;
     display: flex;
     flex-direction: column;
@@ -227,36 +227,39 @@
 .brand-info {
     display: flex;
     align-items: center;
-    gap: 8px;
-    margin-bottom: 4px;
+    gap: 6px;
+    margin-bottom: 2px;
 }
 
 .card-brand-logo {
-    height: 20px;
+    height: 16px;
     width: auto;
 }
 
 .brand {
     color: #dc2626;
-    font-size: 0.8rem;
+    font-size: 0.7rem;
     font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 2px;
+    letter-spacing: 1.5px;
 }
 
 .name {
     color: white;
-    font-size: 1.75rem;
-    margin: 5px 0 15px 0;
+    font-size: 1.1rem;
+    margin: 4px 0 10px 0;
     font-weight: 800;
-    letter-spacing: -0.5px;
+    letter-spacing: -0.3px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .stats-grid {
     display: flex;
-    gap: 30px;
-    margin-bottom: 20px;
-    padding-bottom: 15px;
+    gap: 16px;
+    margin-bottom: 12px;
+    padding-bottom: 10px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
@@ -267,14 +270,14 @@
 
 .stat-label {
     color: #666;
-    font-size: 0.7rem;
+    font-size: 0.6rem;
     text-transform: uppercase;
-    margin-bottom: 4px;
+    margin-bottom: 2px;
 }
 
 .stat-value {
     color: #eee;
-    font-size: 1rem;
+    font-size: 0.85rem;
     font-weight: 700;
 }
 
@@ -291,12 +294,12 @@
 
 .price-label {
     color: #666;
-    font-size: 0.7rem;
+    font-size: 0.6rem;
 }
 
 .price {
     color: white;
-    font-size: 1.6rem;
+    font-size: 1.15rem;
     font-weight: 800;
 }
 
@@ -304,10 +307,10 @@
     background: #dc2626;
     color: white;
     border: none;
-    padding: 12px 30px;
-    border-radius: 14px;
+    padding: 8px 16px;
+    border-radius: 10px;
     font-weight: 700;
-    font-size: 0.9rem;
+    font-size: 0.75rem;
     cursor: pointer;
     transition: all 0.3s ease;
 }
@@ -320,13 +323,13 @@
 
 .badge {
     position: absolute;
-    top: 15px;
-    left: 15px;
+    top: 10px;
+    left: 10px;
     background: rgba(220, 38, 38, 0.9);
     color: white;
-    padding: 4px 12px;
+    padding: 3px 10px;
     border-radius: 50px;
-    font-size: 0.7rem;
+    font-size: 0.6rem;
     font-weight: 700;
     text-transform: uppercase;
     z-index: 2;
@@ -335,7 +338,7 @@
 .overlay {
     position: absolute;
     inset: 0;
-    background: linear-gradient(to right, rgba(0, 0, 0, 0.4), transparent);
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.5), transparent);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -351,9 +354,10 @@
     background: transparent;
     border: 2px solid white;
     color: white;
-    padding: 10px 24px;
+    padding: 8px 18px;
     border-radius: 50px;
     font-weight: 700;
+    font-size: 0.8rem;
     cursor: pointer;
     transition: all 0.3s;
 }
@@ -376,27 +380,39 @@
     justify-content: center;
     align-items: center;
     z-index: 1000;
+    padding: 20px;
 }
 
 .modal-content {
     background: #111;
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 20px;
-    width: 90%;
-    max-width: 600px;
-    padding: 40px;
+    width: 100%;
+    max-width: 550px;
+    max-height: 90vh;
+    padding: 30px;
     box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(220, 38, 38, 0.4) transparent;
 }
 
 .modal-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 30px;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    position: sticky;
+    top: -30px;
+    background: #111;
+    z-index: 2;
+    padding-top: 5px;
 }
 
 .modal-header h2 {
-    font-size: 1.8rem;
+    font-size: 1.4rem;
     font-weight: 800;
     color: white;
 }
@@ -417,13 +433,13 @@
 .create-form {
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 16px;
 }
 
 .form-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 20px;
+    gap: 16px;
 }
 
 .form-group {
@@ -448,10 +464,10 @@
 .create-form select {
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid rgba(255, 255, 255, 0.1);
-    padding: 12px 16px;
+    padding: 10px 14px;
     border-radius: 10px;
     color: white;
-    font-size: 1rem;
+    font-size: 0.9rem;
     transition: all 0.3s;
 }
 
@@ -467,7 +483,14 @@
     display: flex;
     justify-content: flex-end;
     gap: 15px;
-    margin-top: 20px;
+    margin-top: 10px;
+    padding-top: 15px;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    position: sticky;
+    bottom: -30px;
+    background: #111;
+    padding-bottom: 5px;
+    z-index: 2;
 }
 
 .cancel-btn {
@@ -512,10 +535,10 @@
 /* File Upload Styles */
 .file-upload-zone {
     width: 100%;
-    height: 180px;
+    height: 130px;
     background: rgba(255, 255, 255, 0.03);
     border: 2px dashed rgba(255, 255, 255, 0.1);
-    border-radius: 16px;
+    border-radius: 14px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -637,6 +660,18 @@
 }
 
 /* Responsive */
+@media (max-width: 1200px) {
+    .vehicles-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 900px) {
+    .vehicles-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
 @media (max-width: 768px) {
     .page-header {
         flex-direction: column;
@@ -648,14 +683,14 @@
         font-size: 2rem;
     }
 
-    .vehicle-card {
-        flex-direction: column;
-        height: auto;
+    .content {
+        padding: 30px 20px;
     }
+}
 
-    .card-image-wrapper {
-        width: 100%;
-        height: 200px;
+@media (max-width: 520px) {
+    .vehicles-grid {
+        grid-template-columns: 1fr;
     }
 }
 
