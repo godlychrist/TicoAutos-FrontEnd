@@ -11,7 +11,7 @@ const create = async (vehicle) => {
 };
 
 const update = async (id, vehicle) => {
-    const response = await api.put(`/vehicles/${id}`, vehicle);
+    const response = await api.post(`/vehicles/${id}`, vehicle);
     return response.data;
 };
 
