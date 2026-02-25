@@ -78,12 +78,8 @@ export function useVehicles() {
                 }
             }
 
-            const response = await vehicleService.create(formData);
-
-            if (response.data && response.data.vehicle) {
-                vehicles.value.push(response.data.vehicle);
-            }
-
+            await vehicleService.create(formData);
+            await getVehicles();
             return true;
         } catch (err) {
             error.value = err.response?.data?.message || "Error al crear el vehículo";
@@ -142,13 +138,8 @@ export function useVehicles() {
                 formData.append('image', form.image);
             }
 
-            const response = await vehicleService.update(id, formData);
-
-            const updatedVehicle = response.vehicle ?? response;
-            const idx = vehicles.value.findIndex(v => (v.id || v._id) === id);
-            if (idx !== -1) {
-                vehicles.value[idx] = updatedVehicle;
-            }
+            await vehicleService.update(id, formData);
+            await getVehicles(); // Recargar la lista automáticamente
             return true;
         } catch (err) {
             console.error("Error al editar:", err);
@@ -162,10 +153,7 @@ export function useVehicles() {
         loading.value = true;
         try {
             await vehicleService.remove(id);
-            const idx = vehicles.value.findIndex(v => (v.id || v._id) === id);
-            if (idx !== -1) {
-                vehicles.value.splice(idx, 1);
-            }
+            await getVehicles(); // Recargar la lista automáticamente
             return true;
         } catch (err) {
             console.error("Error al eliminar:", err);
