@@ -19,17 +19,17 @@
               <p>{{ isLogin ? 'Inicia sesión para continuar con tu viaje.' : 'Únete a la flota más exclusiva.' }}</p>
             </div>
 
-            <form @submit.prevent="handleFormSubmit" class="auth-form">
+            <form @submit.prevent="handleSubmit" class="auth-form">
               <authInput 
                 id="username"
-                v-model="username"
+                v-model="form.username"
                 label="Usuario"
                 required
               />
 
               <authInput 
                 id="password"
-                v-model="password"
+                v-model="form.password"
                 type="password"
                 label="Contraseña"
                 required
@@ -53,8 +53,8 @@
                 <a href="#" class="link red">¿Olvidaste tu contraseña?</a>
               </div>
 
-              <div v-if="loginError" class="login-error">
-                {{ loginError }}
+              <div v-if="error" class="login-error">
+                {{ error }}
               </div>
 
               <button type="submit" class="submit-btn" :disabled="isLoading">
@@ -85,53 +85,14 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
 import authBrandSide from './authBrandSide.vue';
 import authInput from './authInput.vue';
 import socialLogins from './socialLogins.vue';
 import authService from '@/assets/services/authService';
+import { useAuth } from '@/composables/useAuth.js';
 
-const isLogin = ref(true);
-const username = ref('');
-const password = ref('');
-const isLoading = ref(false);
-const loginError = ref(null);
+const { form, isLogin, isLoading, error, handleSubmit } = useAuth();
 
-const emit = defineEmits(['login']);
-
-const handleFormSubmit = async () => {
-    isLoading.value = true;
-    loginError.value = null;
-    try {
-        if (isLogin.value) {
-            const response = await authService.login({
-                username: username.value,
-                password: password.value
-            });
-            
-            const data = response.data;
-            if (data.token) {
-                localStorage.setItem('token', data.token);
-                localStorage.setItem('user', JSON.stringify(data.user || data));
-                emit('login', data.user || data);
-            }
-        } else {
-            // Lógica de registro...
-            await authService.register({
-                username: username.value,
-                password: password.value
-                // Otros campos si son necesarios
-            });
-            isLogin.value = true;
-            isLoading.value = false;
-        }
-    } catch (error) {
-        console.error('Error en autenticación:', error);
-        loginError.value = error.response?.data?.message || 'Error al conectar con el servidor';
-    } finally {
-        isLoading.value = false;
-    }
-};
 </script>
 
 <style src="../../assets/styles/auth.css"></style>
