@@ -1,14 +1,15 @@
 <script setup>
 import { onMounted } from 'vue';
 import { useVehicles } from '@/composables/useVehicles.js';
+import { useAuth } from '@/composables/useAuth.js';
 import vehicleCard from './vehicleCard.vue';
 import vehicleCreateModal from './vehicleCreateModal.vue';
 
 // Props y Emits básicos
+const { handleLogout } = useAuth();
 defineProps({
   username: String
 });
-defineEmits(['logout']);
 
 // Usamos el estado global del Composable
 const {
@@ -32,7 +33,7 @@ onMounted(() => {
       </div>
       <div class="user-info">
         <span class="username">{{ username || 'Usuario' }}</span>
-        <button class="logout-btn" @click="$emit('logout')">Salir</button>
+        <button class="logout-btn" @click="handleLogout">Salir</button>
       </div>
     </nav>
 
