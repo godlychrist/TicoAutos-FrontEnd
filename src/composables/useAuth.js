@@ -1,5 +1,6 @@
 import { ref, reactive } from 'vue';
 import authService from '../assets/services/authService.js';
+import router from '../router';
 
 export function useAuth() {
     const error = ref(null);
@@ -26,7 +27,7 @@ export function useAuth() {
                 if (response.data.token) {
                     localStorage.setItem('token', response.data.token);
                     localStorage.setItem('user', JSON.stringify(response.data.user));
-                    window.location.reload();
+                    router.push('/vehicles');
                 }
 
             } else {
@@ -44,7 +45,6 @@ export function useAuth() {
                 });
                 alert("¡Registrado!");
                 isLogin.value = true;
-                // Limpiar campos después de registro exitoso
                 form.username = '';
                 form.password = '';
                 form.confirmPassword = '';
@@ -67,5 +67,10 @@ export function useAuth() {
             isLoading.value = false;
         }
     };
-    return { form, isLogin, isLoading, error, toggleAuthMode, handleSubmit };
+    const handleLogout = () => {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        router.push('/login');
+    }
+    return { form, isLogin, isLoading, error, toggleAuthMode, handleSubmit, handleLogout };
 }
