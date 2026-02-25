@@ -10,7 +10,7 @@
       <div class="badge">{{ vehicle.status === 'available' ? 'Disponible' : 'Vendido' }}</div>
       
       <!-- Botones de Acción Profesionales -->
-      <div class="card-actions-overlay">
+      <div v-if="isOwner" class="card-actions-overlay"> 
         <button class="action-btn edit" @click.stop="handleEdit" title="Editar Vehículo">
           <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
         </button>
@@ -55,6 +55,7 @@
 </template>
 
 <script setup>
+import { computed } from 'vue';
 import { useVehicles } from '@/composables/useVehicles';
 
 const props = defineProps({
@@ -63,6 +64,15 @@ const props = defineProps({
 });
 
 const { handleDeleteVehicle, openModal, imageUrl } = useVehicles();
+
+// Obtener el usuario actual para verificar propiedad
+const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
+const currentUserId = currentUser._id || currentUser.id || currentUser.ID;
+
+const isOwner = computed(() => {
+  const vehicleUserId = props.vehicle.user_id || props.vehicle.userId;
+  return currentUserId && vehicleUserId && String(currentUserId) === String(vehicleUserId);
+});
 
 const formatPrice = (price) => {
   return new Intl.NumberFormat('en-US').format(price);
