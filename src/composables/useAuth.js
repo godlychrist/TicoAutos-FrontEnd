@@ -27,6 +27,7 @@ export function useAuth() {
                 if (response.data.token) {
                     localStorage.setItem('token', response.data.token);
                     localStorage.setItem('user', JSON.stringify(response.data.user));
+                    localStorage.setItem('userId', response.data.user.id);
                     router.push('/vehicles');
                 }
 
