@@ -5,6 +5,11 @@ const getAll = async (filters, page) => {
     return response.data;
 };
 
+const getById = async (id) => {
+    const response = await api.get(`/vehicles/${id}`);
+    return response.data;
+};
+
 const create = async (vehicle) => {
     const response = await api.post('/vehicles', vehicle);
     return response.data;
@@ -22,6 +27,7 @@ const remove = async (id) => {
 
 export default {
     getAll,
+    getById,
     create,
     update,
     remove

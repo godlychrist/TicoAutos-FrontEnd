@@ -184,21 +184,24 @@ export function useVehicles() {
         }
     };
 
-    const brands = computed(() => { // * Computed es para ver si se agrega un carro mas o no
+    const getVehicleById = async (id) => {
+        loading.value = true;
+        error.value = null;
+        try {
+            return await vehicleService.getById(id);
+        } catch (err) {
+            error.value = "Error al cargar el vehículo";
+            console.error(err);
+            return null;
+        } finally {
+            loading.value = false;
+        }
+    };
+
+    const brands = computed(() => {
         const allBrands = vehicles.value.map(v => v.brand);
         return [...new Set(allBrands)];
-    })
-
-    const filters = reactive({
-        search: '',
-        brand: '',
-        status: '',
-        year_min: '',
-        year_max: '',
-        price_range: ''
-    })
-
-
+    });
 
     return {
         isModalOpen,
@@ -206,6 +209,8 @@ export function useVehicles() {
         loading,
         error,
         form,
+        filters,
+        brands,
         openModal,
         closeModal,
         handleCreateVehicle,
