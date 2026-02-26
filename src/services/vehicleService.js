@@ -1,7 +1,7 @@
 import api from './api';
 
-const getAll = async () => {
-    const response = await api.get('/vehicles');
+const getAll = async (filters) => {
+    const response = await api.get('/vehicles', { params: filters });
     return response.data;
 };
 
