@@ -17,6 +17,15 @@ const form = reactive({
     image: null
 });
 
+const pagination = reactive({
+    total: 0,
+    per_page: 10,
+    current_page: 1,
+    last_page: 1,
+    from: 1,
+    to: 10
+});
+
 export function useVehicles() {
 
     const resetForm = () => {
@@ -99,12 +108,15 @@ export function useVehicles() {
         }
     };
 
-    const getVehicles = async () => {
+    const getVehicles = async (page = 1) => {
         loading.value = true;
         error.value = null;
         try {
-            const data = await vehicleService.getAll(filters);
-            vehicles.value = data;
+            const data = await vehicleService.getAll(filters, page);
+            pagination.current_page = data.current_page;
+            pagination.total = data.total;
+            pagination.last_page = data.last_page;
+            vehicles.value = data.data;
         } catch (err) {
             error.value = "Error al cargar los vehículos";
             vehicles.value = [];
@@ -203,6 +215,7 @@ export function useVehicles() {
         handleDeleteVehicle,
         brands,
         filters,
-        resetFilters
+        resetFilters,
+        pagination
     };
 }
