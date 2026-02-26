@@ -34,7 +34,7 @@
       
 
       <div class="overlay">
-        <button class="view-details-btn">Ver Detalles</button>
+        <button class="view-details-btn" @click="goToDetail">Ver Detalles</button>
       </div>
     </div>
     
@@ -70,7 +70,10 @@
 
 <script setup>
 import { computed, ref } from 'vue';
+import { useRouter } from 'vue-router';
 import { useVehicles } from '@/composables/useVehicles';
+
+const router = useRouter();
 
 const props = defineProps({
   vehicle: Object,
@@ -127,6 +130,11 @@ const handleShare = () => {
   }).catch(err => {
     console.error('Error al copiar:', err);
   });
+};
+
+const goToDetail = () => {
+  const id = props.vehicle._id || props.vehicle.id;
+  router.push(`/vehicles/${id}`);
 };
 </script>
 
