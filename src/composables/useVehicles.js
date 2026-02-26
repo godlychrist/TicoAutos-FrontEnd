@@ -163,6 +163,20 @@ export function useVehicles() {
         }
     };
 
+    const getVehicleById = async (id) => {
+        loading.value = true;
+        error.value = null;
+        try {
+            return await vehicleService.getById(id);
+        } catch (err) {
+            error.value = "Error al cargar el vehículo";
+            console.error(err);
+            return null;
+        } finally {
+            loading.value = false;
+        }
+    };
+
     return {
         isModalOpen,
         vehicles,
@@ -175,6 +189,7 @@ export function useVehicles() {
         getVehicles,
         imageUrl,
         updateVehicle,
-        handleDeleteVehicle
+        handleDeleteVehicle,
+        getVehicleById
     };
 }
