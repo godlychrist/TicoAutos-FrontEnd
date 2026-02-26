@@ -19,7 +19,8 @@ const {
   getVehicles,
   brands,
   filters,
-  resetFilters
+  resetFilters,
+  pagination
 } = useVehicles();
 
 const currentUser = ref('Usuario');
@@ -107,6 +108,21 @@ onMounted(() => {
         />
       </div>
 
+      <!-- Paginación -->
+      <div v-if="vehicles.length > 0" class="pagination">
+        <button class="pagination-btn" @click="getVehicles(pagination.current_page - 1)" :disabled="pagination.current_page <= 1">
+            ← Anterior
+        </button>
+        <div class="pagination-info">
+          <span class="page-current">{{ pagination.current_page }}</span>
+          <span class="page-separator">de</span>
+          <span class="page-total">{{ pagination.last_page }}</span>
+        </div>
+        <button class="pagination-btn" @click="getVehicles(pagination.current_page + 1)" :disabled="pagination.current_page >= pagination.last_page">
+            Siguiente →
+        </button>
+      </div>
+
       <div v-else class="empty-state">
         <div class="empty-icon">🏎️</div>
         <h3>No hay vehículos todavía</h3>
@@ -118,6 +134,61 @@ onMounted(() => {
 </template>
 
 <style scoped>
+.pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    margin-top: 40px;
+    padding: 20px 0;
+}
+
+.pagination-btn {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: white;
+    padding: 10px 24px;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.pagination-btn:hover:not(:disabled) {
+    background: #dc2626;
+    border-color: #dc2626;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 15px rgba(220, 38, 38, 0.3);
+}
+
+.pagination-btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+.pagination-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.9rem;
+}
+
+.page-current {
+    color: #dc2626;
+    font-weight: 700;
+    font-size: 1.1rem;
+}
+
+.page-separator {
+    color: #555;
+}
+
+.page-total {
+    color: white;
+    font-weight: 600;
+}
+
 .empty-state {
   text-align: center;
   padding: 80px 20px;
