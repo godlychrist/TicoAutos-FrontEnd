@@ -73,6 +73,32 @@
     color: black;
 }
 
+.messages-nav-btn {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 10px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    margin-right: 10px;
+}
+
+.messages-nav-btn:hover {
+    background: rgba(220, 38, 38, 0.1);
+    border-color: #dc2626;
+    transform: translateY(-1px);
+}
+
+.messages-nav-btn svg {
+    color: #dc2626;
+}
+
 /* Header & Actions */
 .content {
     max-width: 1400px;
