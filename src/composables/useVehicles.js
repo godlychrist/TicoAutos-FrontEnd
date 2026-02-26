@@ -1,4 +1,4 @@
-import { ref, reactive } from 'vue';
+import { ref, reactive, computed } from 'vue';
 import vehicleService from '@/services/vehicleService';
 
 const isModalOpen = ref(false);
@@ -28,6 +28,15 @@ export function useVehicles() {
         form.status = 'available';
         form.image = null;
     };
+
+    const resetFilters = () => {
+        filters.search = '';
+        filters.brand = '';
+        filters.status = '';
+        filters.year_min = '';
+        filters.year_max = '';
+        filters.price_range = '';
+    }
 
     const openModal = (vehicle = null) => {
         // DEBUG: Esto nos dirá qué está llegando cuando le das al botón Editar
@@ -98,7 +107,7 @@ export function useVehicles() {
         loading.value = true;
         error.value = null;
         try {
-            const data = await vehicleService.getAll();
+            const data = await vehicleService.getAll(filters);
             vehicles.value = data;
         } catch (err) {
             error.value = "Error al cargar los vehículos";
@@ -175,6 +184,22 @@ export function useVehicles() {
         }
     };
 
+    const brands = computed(() => { // * Computed es para ver si se agrega un carro mas o no
+        const allBrands = vehicles.value.map(v => v.brand);
+        return [...new Set(allBrands)];
+    })
+
+    const filters = reactive({
+        search: '',
+        brand: '',
+        status: '',
+        year_min: '',
+        year_max: '',
+        price_range: ''
+    })
+
+
+
     return {
         isModalOpen,
         vehicles,
@@ -187,6 +212,9 @@ export function useVehicles() {
         getVehicles,
         imageUrl,
         updateVehicle,
-        handleDeleteVehicle
+        handleDeleteVehicle,
+        brands,
+        filters,
+        resetFilters
     };
 }
