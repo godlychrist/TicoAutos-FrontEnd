@@ -1,4 +1,4 @@
-import { ref, reactive } from 'vue';
+import { ref, reactive, computed } from 'vue';
 import vehicleService from '@/services/vehicleService';
 
 const isModalOpen = ref(false);
@@ -17,6 +17,16 @@ const form = reactive({
     image: null
 });
 
+// Filtros compartidos de Cris
+const filters = reactive({
+    search: '',
+    brand: '',
+    status: '',
+    year_min: '',
+    year_max: '',
+    price_range: ''
+});
+
 export function useVehicles() {
 
     const resetForm = () => {
@@ -28,6 +38,15 @@ export function useVehicles() {
         form.status = 'available';
         form.image = null;
     };
+
+    const resetFilters = () => {
+        filters.search = '';
+        filters.brand = '';
+        filters.status = '';
+        filters.year_min = '';
+        filters.year_max = '';
+        filters.price_range = '';
+    }
 
     const openModal = (vehicle = null) => {
         // DEBUG: Esto nos dirá qué está llegando cuando le das al botón Editar
@@ -94,7 +113,7 @@ export function useVehicles() {
         loading.value = true;
         error.value = null;
         try {
-            const data = await vehicleService.getAll();
+            const data = await vehicleService.getAll(filters);
             vehicles.value = data;
         } catch (err) {
             error.value = "Error al cargar los vehículos";
@@ -177,12 +196,19 @@ export function useVehicles() {
         }
     };
 
+    const brands = computed(() => {
+        const allBrands = vehicles.value.map(v => v.brand);
+        return [...new Set(allBrands)];
+    });
+
     return {
         isModalOpen,
         vehicles,
         loading,
         error,
         form,
+        filters,
+        brands,
         openModal,
         closeModal,
         handleCreateVehicle,
@@ -190,6 +216,7 @@ export function useVehicles() {
         imageUrl,
         updateVehicle,
         handleDeleteVehicle,
-        getVehicleById
+        getVehicleById,
+        resetFilters
     };
 }
