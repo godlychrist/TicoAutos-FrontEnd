@@ -27,6 +27,16 @@ const filters = reactive({
     price_range: ''
 });
 
+// Paginación compartida de Cris
+const pagination = reactive({
+    total: 0,
+    per_page: 8,
+    current_page: 1,
+    last_page: 1,
+    from: 1,
+    to: 8
+});
+
 export function useVehicles() {
 
     const resetForm = () => {
@@ -109,12 +119,16 @@ export function useVehicles() {
         }
     };
 
-    const getVehicles = async () => {
+    const getVehicles = async (page = 1) => {
         loading.value = true;
         error.value = null;
         try {
-            const data = await vehicleService.getAll(filters);
-            vehicles.value = data;
+            const data = await vehicleService.getAll(filters, page);
+            // Laravel regresa un objeto con data, current_page, etc.
+            pagination.current_page = data.current_page;
+            pagination.total = data.total;
+            pagination.last_page = data.last_page;
+            vehicles.value = data.data;
         } catch (err) {
             error.value = "Error al cargar los vehículos";
             vehicles.value = [];
@@ -209,6 +223,7 @@ export function useVehicles() {
         form,
         filters,
         brands,
+        pagination,
         openModal,
         closeModal,
         handleCreateVehicle,
