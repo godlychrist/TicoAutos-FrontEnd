@@ -88,7 +88,6 @@
 import authBrandSide from './authBrandSide.vue';
 import authInput from './authInput.vue';
 import socialLogins from './socialLogins.vue';
-import authService from '@/assets/services/authService';
 import { useAuth } from '@/composables/useAuth.js';
 
 const { form, isLogin, isLoading, error, handleSubmit } = useAuth();
