@@ -17,16 +17,6 @@ const form = reactive({
     image: null
 });
 
-// Filtros compartidos de Cris
-const filters = reactive({
-    search: '',
-    brand: '',
-    status: '',
-    year_min: '',
-    year_max: '',
-    price_range: ''
-});
-
 // Paginación compartida de Cris
 const pagination = reactive({
     total: 0,
@@ -35,6 +25,16 @@ const pagination = reactive({
     last_page: 1,
     from: 1,
     to: 8
+});
+
+// Filtros compartidos de Cris
+const filters = reactive({
+    search: '',
+    brand: '',
+    status: '',
+    year_min: '',
+    year_max: '',
+    price_range: ''
 });
 
 export function useVehicles() {
