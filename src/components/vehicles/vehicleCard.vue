@@ -62,7 +62,24 @@
           <span class="price-label">Precio</span>
           <span class="price">${{ formatPrice(vehicle.price) }}</span>
         </div>
-        <button class="book-btn">RESERVAR</button>
+        
+        <!-- Si es el DUEÑO: Botón para cambiar estado -->
+        <button 
+          v-if="isOwner" 
+          @click.stop="handleStatusToggle"
+          :class="['book-btn', 'toggle-btn', vehicle.status]"
+        >
+          {{ vehicle.status === 'available' ? 'MARCAR VENDIDO' : 'A DISPONIBLE' }}
+        </button>
+
+        <!-- Si NO es el dueño: Botón de preguntar (Requisito UTN) -->
+        <button 
+          v-else 
+          class="book-btn ask"
+          @click.stop="$router.push('/messages')"
+        >
+          PREGUNTAR
+        </button>
       </div>
     </div>
   </div>
@@ -80,7 +97,13 @@ const props = defineProps({
   index: Number
 });
 
-const { handleDeleteVehicle, openModal, imageUrl } = useVehicles();
+const { handleDeleteVehicle, openModal, imageUrl, updateVehicleStatus } = useVehicles();
+
+const handleStatusToggle = async () => {
+  const newStatus = props.vehicle.status === 'available' ? 'sold' : 'available';
+  const vehicleId = props.vehicle._id || props.vehicle.id;
+  await updateVehicleStatus(vehicleId, newStatus);
+};
 
 // Obtener el usuario actual para verificar propiedad
 const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
