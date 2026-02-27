@@ -196,6 +196,20 @@ export function useVehicles() {
         }
     };
 
+    const updateVehicleStatus = async (id, newStatus) => {
+        loading.value = true;
+        try {
+            await vehicleService.update(id, { status: newStatus });
+            await getVehicles(); // Refrescar lista
+            return true;
+        } catch (err) {
+            console.error("Error al cambiar estado:", err);
+            return false;
+        } finally {
+            loading.value = false;
+        }
+    };
+
     const getVehicleById = async (id) => {
         loading.value = true;
         error.value = null;
@@ -231,6 +245,7 @@ export function useVehicles() {
         imageUrl,
         updateVehicle,
         handleDeleteVehicle,
+        updateVehicleStatus,
         getVehicleById,
         resetFilters
     };
