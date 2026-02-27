@@ -15,9 +15,16 @@ const create = async (vehicle) => {
     return response.data;
 };
 
-const update = async (id, vehicle) => {
-    const response = await api.post(`/vehicles/${id}`, vehicle);
-    return response.data;
+const update = async (id, data) => {
+    if (data instanceof FormData) {
+        // Para subir archivos con FormData, Laravel prefiere POST + _method: PUT
+        const response = await api.post(`/vehicles/${id}`, data);
+        return response.data;
+    } else {
+        // Para actualizaciones simples de JSON (como el estado), usamos PUT real
+        const response = await api.put(`/vehicles/${id}`, data);
+        return response.data;
+    }
 };
 
 const remove = async (id) => {
