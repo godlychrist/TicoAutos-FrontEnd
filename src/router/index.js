@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router';
 import loginView from '../components/auth/loginView.vue';
 import vehicleListView from '../components/vehicles/vehicleListView.vue';
 import vehicleDetailView from '../components/vehicles/vehicleDetailView.vue';
+import messagesView from '../components/messages/messagesView.vue';
 
 const router = createRouter({
     history: createWebHistory(),
@@ -24,6 +25,11 @@ const router = createRouter({
             path: '/vehicles/:id',
             name: 'vehicle-detail',
             component: vehicleDetailView
+        },
+        {
+            path: '/messages',
+            name: 'messages',
+            component: messagesView
         }
     ]
 })
