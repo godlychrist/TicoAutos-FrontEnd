@@ -5,12 +5,34 @@ import { useVehicles } from '@/composables/useVehicles.js';
 
 const route = useRoute();
 const router = useRouter();
-const { getVehicleById, imageUrl, loading } = useVehicles();
+const { getVehicleById, imageUrl, loading, updateVehicleStatus } = useVehicles();
 
 const vehicle = ref(null);
 const showCopiedMessage = ref(false);
 
 const isAvailable = computed(() => vehicle.value?.status === 'available');
+
+// Obtener el usuario actual para verificar propiedad
+const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
+const currentUserId = currentUser._id || currentUser.id || currentUser.ID;
+
+const isOwner = computed(() => {
+  const vehicleUserId = vehicle.value?.user_id || vehicle.value?.userId;
+  return currentUserId && vehicleUserId && String(currentUserId) === String(vehicleUserId);
+});
+
+const handleStatusToggle = async () => {
+    const newStatus = vehicle.value.status === 'available' ? 'sold' : 'available';
+    const success = await updateVehicleStatus(vehicle.value._id || vehicle.value.id, newStatus);
+    if (success) {
+        // Actualizar localmente para no recargar todo
+        vehicle.value.status = newStatus;
+    }
+};
+
+const goToMessages = () => {
+  router.push('/messages');
+};
 
 onMounted(async () => {
   const id = route.params.id;
@@ -90,8 +112,24 @@ const goBack = () => {
             </div>
 
             <div class="actions">
-              <button class="reserve-btn" :disabled="!isAvailable">
-                {{ isAvailable ? 'RESERVAR AHORA' : 'VENDIDO' }}
+              <!-- Si es el dueño -->
+              <button 
+                v-if="isOwner" 
+                class="reserve-btn toggle" 
+                @click="handleStatusToggle"
+                :class="vehicle.status"
+              >
+                {{ isAvailable ? 'MARCAR COMO VENDIDO' : 'MARCAR DISPONIBLE' }}
+              </button>
+
+              <!-- Si es visitante -->
+              <button 
+                v-else 
+                class="reserve-btn" 
+                @click="goToMessages"
+                :disabled="!isAvailable"
+              >
+                {{ isAvailable ? 'HACER UNA PREGUNTA' : 'VENDIDO' }}
               </button>
               
               <div class="share-container">
@@ -103,16 +141,6 @@ const goBack = () => {
                   <span v-if="showCopiedMessage" class="copied-toast">¡Enlace Copiado!</span>
                 </transition>
               </div>
-            </div>
-          </div>
-
-          <!-- Preguntas -->
-          <div class="questions-section">
-            <h2 class="section-title">Preguntas y Respuestas</h2>
-            <div class="empty-questions">
-              <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="msg-icon"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
-              <p>Aún no hay preguntas para este vehículo.</p>
-              <button class="ask-btn">Hacer una pregunta</button>
             </div>
           </div>
         </div>
