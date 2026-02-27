@@ -505,21 +505,51 @@
 }
 
 .book-btn {
-    background: #dc2626;
     color: white;
     border: none;
-    padding: 8px 16px;
-    border-radius: 10px;
+    padding: 10px 18px;
+    border-radius: 12px;
     font-weight: 700;
-    font-size: 0.75rem;
+    font-size: 0.8rem;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.book-btn.toggle-btn.available {
+    background: linear-gradient(135deg, #dc2626 0%, #7f1d1d 100%);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.book-btn.toggle-btn.sold {
+    background: linear-gradient(135deg, #10b981 0%, #064e3b 100%);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.book-btn.ask {
+    background: linear-gradient(135deg, #3b82f6 0%, #1e3a8a 100%);
+    border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .book-btn:hover {
-    background: #b91c1c;
+    transform: scale(1.05) translateY(-2px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+}
+
+.book-btn.toggle-btn.available:hover {
     box-shadow: 0 0 20px rgba(220, 38, 38, 0.4);
-    transform: scale(1.05);
+}
+
+.book-btn.toggle-btn.sold:hover {
+    box-shadow: 0 0 20px rgba(16, 185, 129, 0.4);
+}
+
+.book-btn.ask:hover {
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.4);
 }
 
 .badge {
