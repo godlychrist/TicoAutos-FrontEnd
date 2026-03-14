@@ -35,8 +35,13 @@ const router = createRouter({
 })
 router.beforeEach((to, from, next) => {
     const token = localStorage.getItem('token');
-    if (to.name !== 'login' && !token) {
-        next({ name: 'login' })
+    
+    // Rutas públicas que no requieren token
+    const publicPages = ['login', 'vehicles', 'vehicle-detail'];
+    const authRequired = !publicPages.includes(to.name);
+
+    if (authRequired && !token) {
+        next({ name: 'login' });
     } else {
         next();
     }
