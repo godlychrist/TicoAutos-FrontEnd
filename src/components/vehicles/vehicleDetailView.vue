@@ -13,8 +13,9 @@ const showCopiedMessage = ref(false);
 const isAvailable = computed(() => vehicle.value?.status === 'available');
 
 // Obtener el usuario actual para verificar propiedad
-const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
-const currentUserId = currentUser._id || currentUser.id || currentUser.ID;
+const currentUser = localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')) : null;
+const currentUserId = currentUser ? (currentUser._id || currentUser.id || currentUser.ID) : null;
+const isAuthenticated = !!localStorage.getItem('token');
 
 const isOwner = computed(() => {
   const vehicleUserId = vehicle.value?.user_id || vehicle.value?.userId;
@@ -31,6 +32,11 @@ const handleStatusToggle = async () => {
 };
 
 const goToMessages = () => {
+    if(!isAuthenticated) {
+        alert("Debes iniciar sesión para hacer preguntas al vendedor.");
+        router.push('/login');
+        return;
+    }
   router.push('/messages');
 };
 
@@ -122,14 +128,24 @@ const goBack = () => {
                 {{ isAvailable ? 'MARCAR COMO VENDIDO' : 'MARCAR DISPONIBLE' }}
               </button>
 
-              <!-- Si es visitante -->
+              <!-- Si es visitante AND logueado -->
               <button 
-                v-else 
+                v-else-if="isAuthenticated"
                 class="reserve-btn" 
                 @click="goToMessages"
                 :disabled="!isAvailable"
               >
                 {{ isAvailable ? 'HACER UNA PREGUNTA' : 'VENDIDO' }}
+              </button>
+              
+              <!-- Si es visitante NO logueado -->
+              <button 
+                v-else 
+                class="reserve-btn outline" 
+                @click="goToMessages"
+                :disabled="!isAvailable"
+              >
+                Inicia sesión para preguntar
               </button>
               
               <div class="share-container">
