@@ -73,6 +73,9 @@
                 ¿Ya eres parte de TicoAutos? 
                 <a href="#" @click.prevent="isLogin = true" class="link red">Inicia Sesión</a>
               </p>
+              <p style="margin-top: 15px;">
+                <a href="#" @click.prevent="$router.push('/vehicles')" class="link outline" style="justify-content: center; padding: 10px; border: 1px solid rgba(255,255,255,0.2); border-radius: 8px;">Explorar sin cuenta 🔍</a>
+              </p>
             </div>
             
             <socialLogins />
