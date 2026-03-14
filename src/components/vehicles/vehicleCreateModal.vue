@@ -156,16 +156,16 @@ const executeSubmit = async () => {
 </template>
 
 <style scoped>
-/* Tus estilos se mantienen intactos */
 .error-message {
-  color: #dc2626;
-  background: rgba(220, 38, 38, 0.1);
-  padding: 10px;
-  border-radius: 8px;
-  font-size: 0.9rem;
+  color: var(--error);
+  background: rgba(239, 68, 68, 0.08);
+  padding: 12px 16px;
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
   margin-bottom: 15px;
-  border: 1px solid rgba(220, 38, 38, 0.2);
+  border: 1px solid rgba(239, 68, 68, 0.15);
   text-align: center;
+  font-weight: 500;
 }
 
 .hidden-input {

@@ -42,9 +42,9 @@ const goBack = () => {
 <style scoped>
 .messages-page {
   min-height: 100vh;
-  background: #0a0a0a;
-  color: white;
-  padding: 20px;
+  background: transparent;
+  color: var(--text-main);
+  padding: 24px;
 }
 
 .top-nav {
@@ -60,28 +60,36 @@ const goBack = () => {
   display: flex;
   align-items: center;
   gap: 10px;
-  background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: white;
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  color: var(--text-secondary);
   padding: 10px 20px;
-  border-radius: 12px;
+  border-radius: var(--radius-sm);
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: var(--transition);
+  font-weight: 600;
+  font-family: 'Outfit', sans-serif;
 }
 
 .back-btn:hover {
-  background: rgba(255, 255, 255, 0.05);
-  border-color: white;
+  background: var(--black-cherry-dark);
+  border-color: var(--black-cherry);
+  color: white;
+  transform: translateX(-4px);
 }
 
 .logo {
-  font-size: 24px;
+  font-size: 1.3rem;
   font-weight: 800;
-  letter-spacing: 2px;
+  letter-spacing: 4px;
 }
 
 .logo span {
-  color: #dc2626;
+  background: linear-gradient(135deg, var(--black-cherry-glow), var(--black-cherry-vibrant));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 10px rgba(139, 26, 74, 0.4));
 }
 
 .messages-container {
@@ -89,27 +97,31 @@ const goBack = () => {
   margin: 0 auto;
   height: 70vh;
   display: grid;
-  grid-template-columns: 350px 1fr;
-  background: rgba(255, 255, 255, 0.03);
-  border-radius: 30px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  grid-template-columns: 320px 1fr;
+  background: rgba(12, 12, 16, 0.5);
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--glass-border);
   overflow: hidden;
+  backdrop-filter: blur(10px);
 }
 
 .sidebar {
-  border-right: 1px solid rgba(255, 255, 255, 0.05);
+  border-right: 1px solid var(--glass-border);
   padding: 30px;
 }
 
 .title {
-  font-size: 24px;
+  font-size: 1.4rem;
   margin-bottom: 30px;
+  font-weight: 700;
+  letter-spacing: -0.3px;
 }
 
 .empty-inbox {
-  color: rgba(255, 255, 255, 0.3);
+  color: var(--text-dim);
   text-align: center;
   margin-top: 50px;
+  font-size: 0.9rem;
 }
 
 .chat-area {
@@ -125,23 +137,27 @@ const goBack = () => {
 }
 
 .msg-icon {
-  color: rgba(255, 255, 255, 0.05);
-  margin-bottom: 20px;
+  color: rgba(74, 13, 43, 0.15);
+  margin-bottom: 24px;
 }
 
 .placeholder h3 {
-  font-size: 22px;
-  margin-bottom: 10px;
+  font-size: 1.3rem;
+  margin-bottom: 12px;
+  font-weight: 700;
 }
 
 .placeholder p {
-  color: rgba(255, 255, 255, 0.4);
-  line-height: 1.6;
+  color: var(--text-muted);
+  line-height: 1.7;
+  font-size: 0.9rem;
 }
 
 @media (max-width: 768px) {
   .messages-container {
     grid-template-columns: 1fr;
+    height: auto;
+    min-height: 50vh;
   }
   .sidebar {
     display: none;

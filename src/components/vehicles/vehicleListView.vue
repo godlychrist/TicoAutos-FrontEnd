@@ -148,26 +148,28 @@ onMounted(() => {
 }
 
 .pagination-btn {
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    color: white;
+    background: var(--glass);
+    border: 1px solid var(--glass-border);
+    color: var(--text-secondary);
     padding: 10px 24px;
-    border-radius: 10px;
+    border-radius: var(--radius-sm);
     font-weight: 600;
     font-size: 0.85rem;
     cursor: pointer;
-    transition: all 0.3s;
+    transition: var(--transition);
+    font-family: 'Outfit', sans-serif;
 }
 
 .pagination-btn:hover:not(:disabled) {
-    background: #dc2626;
-    border-color: #dc2626;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 15px rgba(220, 38, 38, 0.3);
+    background: var(--black-cherry);
+    border-color: var(--black-cherry-light);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-cherry);
 }
 
 .pagination-btn:disabled {
-    opacity: 0.3;
+    opacity: 0.25;
     cursor: not-allowed;
 }
 
@@ -179,26 +181,26 @@ onMounted(() => {
 }
 
 .page-current {
-    color: #dc2626;
+    color: var(--black-cherry-glow);
     font-weight: 700;
     font-size: 1.1rem;
 }
 
 .page-separator {
-    color: #555;
+    color: var(--text-dim);
 }
 
 .page-total {
-    color: white;
+    color: var(--text-main);
     font-weight: 600;
 }
 
 .empty-state {
   text-align: center;
-  padding: 80px 20px;
-  background: rgba(255, 255, 255, 0.03);
-  border-radius: 24px;
-  border: 1px dashed rgba(255, 255, 255, 0.1);
+  padding: 100px 30px;
+  background: var(--glass);
+  border-radius: var(--radius-2xl);
+  border: 2px dashed var(--glass-border);
   margin-top: 40px;
 }
 
@@ -208,31 +210,35 @@ onMounted(() => {
 }
 
 .empty-state h3 {
-  color: white;
-  font-size: 24px;
+  color: var(--text-main);
+  font-size: 1.5rem;
   margin-bottom: 10px;
+  font-weight: 700;
 }
 
 .empty-state p {
-  color: rgba(255, 255, 255, 0.5);
+  color: var(--text-muted);
   margin-bottom: 30px;
 }
 
 .create-btn-empty {
-  background: #dc2626;
+  background: linear-gradient(135deg, var(--black-cherry) 0%, var(--black-cherry-vibrant) 100%);
   color: white;
   border: none;
-  padding: 12px 30px;
-  border-radius: 12px;
-  font-weight: 600;
+  padding: 14px 32px;
+  border-radius: var(--radius-sm);
+  font-weight: 700;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: var(--transition);
+  font-family: 'Outfit', sans-serif;
+  box-shadow: var(--shadow-cherry);
+  letter-spacing: 0.5px;
 }
 
 .create-btn-empty:hover {
-  background: #b91c1c;
-  transform: translateY(-2px);
-  box-shadow: 0 10px 20px rgba(220, 38, 38, 0.3);
+  background: linear-gradient(135deg, var(--black-cherry-vibrant) 0%, var(--black-cherry-glow) 100%);
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-cherry-lg);
 }
 </style>
 

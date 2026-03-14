@@ -172,7 +172,7 @@ const goToDetail = () => {
   z-index: 10;
   opacity: 0;
   transform: translateX(10px);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
 }
 
 .vehicle-card:hover .card-actions-overlay {
@@ -183,25 +183,20 @@ const goToDetail = () => {
 .action-btn {
   width: 38px;
   height: 38px;
-  border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--glass-border);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: var(--transition);
   backdrop-filter: blur(12px);
   color: white;
-}
-
-.action-btn.edit {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.4);
 }
 
 .action-btn.share {
-  background: rgba(59, 130, 246, 0.2);
-  color: #60a5fa;
-  border-color: rgba(59, 130, 246, 0.3);
+  background: rgba(255, 255, 255, 0.1);
 }
 
 .share-wrapper {
@@ -213,63 +208,71 @@ const goToDetail = () => {
 .copied-tooltip {
   position: absolute;
   right: 45px;
-  background: #10b981;
+  background: var(--black-cherry);
   color: white;
-  padding: 4px 10px;
-  border-radius: 6px;
-  font-size: 12px;
-  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 700;
   white-space: nowrap;
   pointer-events: none;
-  box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3);
+  box-shadow: var(--shadow-cherry);
 }
 
-/* Animación de entrada/salida */
 .fade-enter-active, .fade-leave-active {
-  transition: opacity 0.3s, transform 0.3s;
+  transition: all 0.3s ease;
 }
 .fade-enter-from, .fade-leave-to {
   opacity: 0;
   transform: translateX(10px);
 }
 
-.action-btn.share:hover {
-  background: #3b82f6;
-  color: white;
-  border-color: #3b82f6;
-  box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
-}
-
-.action-btn.delete {
-  background: rgba(220, 38, 38, 0.15);
-  color: #ff4d4d;
-  border-color: rgba(220, 38, 38, 0.2);
-}
-
 .action-btn:hover {
   transform: scale(1.1);
-}
-
-.badge.available {
-  background: #10b981;
-  box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3);
-}
-
-.badge.sold {
-  background: #dc2626;
-  box-shadow: 0 4px 10px rgba(220, 38, 38, 0.3);
-}
-
-.action-btn.edit:hover {
-  background: white;
-  color: black;
-  border-color: white;
+  background: var(--black-cherry);
+  border-color: var(--black-cherry-light);
 }
 
 .action-btn.delete:hover {
-  background: #dc2626;
+  background: var(--error);
+  border-color: var(--error);
+}
+
+.badge.available {
+  background: rgba(16, 185, 129, 0.2);
+  border-color: rgba(16, 185, 129, 0.3);
+  color: var(--success);
+  box-shadow: 0 4px 15px rgba(16, 185, 129, 0.15);
+}
+
+.badge.sold {
+  background: rgba(74, 13, 43, 0.8);
+  border-color: var(--black-cherry-light);
+  box-shadow: 0 4px 15px rgba(74, 13, 43, 0.25);
+}
+
+.book-btn.ask {
+  background: white;
+  color: var(--bg-main);
+  border: none;
+  font-weight: 700;
+}
+
+.book-btn.ask:hover {
+  background: var(--text-secondary);
+  transform: scale(1.05);
+}
+
+.book-btn.toggle-btn.available {
+  background: linear-gradient(135deg, var(--black-cherry), var(--black-cherry-vibrant));
   color: white;
-  border-color: #dc2626;
-  box-shadow: 0 4px 15px rgba(220, 38, 38, 0.4);
+  border-color: var(--black-cherry-light);
+  box-shadow: var(--shadow-cherry);
+}
+
+.book-btn.toggle-btn.sold {
+  background: var(--success);
+  color: white;
+  border-color: rgba(16, 185, 129, 0.5);
 }
 </style>
