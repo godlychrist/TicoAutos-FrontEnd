@@ -1,5 +1,6 @@
 import { ref, reactive, computed } from 'vue';
 import vehicleService from '@/services/vehicleService';
+import { useRouter } from 'vue-router';
 
 const isModalOpen = ref(false);
 const vehicles = ref([]);
@@ -154,7 +155,7 @@ export function useVehicles() {
             formData.append('price', form.price);
             formData.append('status', form.status);
 
-            // 1. Agregamos el user_id (ESTO ERA LO QUE FALTABA)
+            // 1. Agregamos el user_id 
             const storedUser = localStorage.getItem('user');
             if (storedUser) {
                 const user = JSON.parse(storedUser);
@@ -229,6 +230,53 @@ export function useVehicles() {
         return [...new Set(allBrands)];
     });
 
+    // --- UTILIDADES GLOBALES ---
+    const router = useRouter();
+
+    const currentUserData = computed(() => {
+        return localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')) : null;
+    });
+
+    const currentUserId = computed(() => {
+        return currentUserData.value ? (currentUserData.value._id || currentUserData.value.id || currentUserData.value.ID) : null;
+    });
+
+    const isAuthenticated = computed(() => !!localStorage.getItem('token'));
+
+    const currentUserName = computed(() => {
+        return currentUserData.value ? (currentUserData.value.username || currentUserData.value.name) : 'Usuario';
+    });
+
+    const checkIsOwner = (vehicleUserId) => {
+        return Boolean(currentUserId.value && vehicleUserId && String(currentUserId.value) === String(vehicleUserId));
+    };
+
+    const formatPrice = (price, useCurrency = false) => {
+        if (useCurrency) {
+            return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(price);
+        }
+        return new Intl.NumberFormat('en-US').format(price);
+    };
+
+    const showCopiedMessage = ref(false);
+
+    const copyToClipboard = (url) => {
+        navigator.clipboard.writeText(url).then(() => {
+            showCopiedMessage.value = true;
+            setTimeout(() => { showCopiedMessage.value = false; }, 2000);
+        }).catch(err => console.error('Error al copiar:', err));
+    };
+
+    const requireLoginForMessages = () => {
+        if (!isAuthenticated.value) {
+            alert("Debes iniciar sesión para hacer preguntas al vendedor.");
+            router.push('/login');
+            return false;
+        }
+        router.push('/messages');
+        return true;
+    };
+
     return {
         isModalOpen,
         vehicles,
@@ -238,6 +286,9 @@ export function useVehicles() {
         filters,
         brands,
         pagination,
+        isAuthenticated,
+        currentUserName,
+        showCopiedMessage,
         openModal,
         closeModal,
         handleCreateVehicle,
@@ -247,6 +298,10 @@ export function useVehicles() {
         handleDeleteVehicle,
         updateVehicleStatus,
         getVehicleById,
-        resetFilters
+        resetFilters,
+        checkIsOwner,
+        formatPrice,
+        copyToClipboard,
+        requireLoginForMessages
     };
 }
