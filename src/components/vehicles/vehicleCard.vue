@@ -86,7 +86,7 @@
 </template>
 
 <script setup>
-import { computed, ref } from 'vue';
+import { computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { useVehicles } from '@/composables/useVehicles';
 
@@ -97,7 +97,16 @@ const props = defineProps({
   index: Number
 });
 
-const { handleDeleteVehicle, openModal, imageUrl, updateVehicleStatus } = useVehicles();
+// Importamos todo directo de useVehicles.js
+const { 
+  handleDeleteVehicle, openModal, imageUrl, updateVehicleStatus,
+  checkIsOwner, formatPrice, showCopiedMessage, copyToClipboard
+} = useVehicles();
+
+const isOwner = computed(() => {
+  const vehicleUserId = props.vehicle.user_id || props.vehicle.userId;
+  return checkIsOwner(vehicleUserId);
+});
 
 const handleStatusToggle = async () => {
   const newStatus = props.vehicle.status === 'available' ? 'sold' : 'available';
@@ -105,54 +114,22 @@ const handleStatusToggle = async () => {
   await updateVehicleStatus(vehicleId, newStatus);
 };
 
-// Obtener el usuario actual para verificar propiedad
-const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
-const currentUserId = currentUser._id || currentUser.id || currentUser.ID;
-
-const isOwner = computed(() => {
-  const vehicleUserId = props.vehicle.user_id || props.vehicle.userId;
-  return currentUserId && vehicleUserId && String(currentUserId) === String(vehicleUserId);
-});
-
-const formatPrice = (price) => {
-  return new Intl.NumberFormat('en-US').format(price);
-};
-
 const handleDelete = async (id) => {
-  // 1. Agregamos una alerta de confirmación nativa
   const isConfirmed = window.confirm(`¿Estás seguro de que deseas eliminar el ${props.vehicle.brand} ${props.vehicle.model}?`);
-  
   if (isConfirmed) {
-    // 2. Si dice que sí, llamamos a la función de tu composable
     const success = await handleDeleteVehicle(id);
-    
-    if (success) {
-      console.log('Vehículo eliminado exitosamente');
-    } else {
-      alert('Hubo un problema al eliminar el vehículo.');
-    }
+    if (!success) alert('Hubo un problema al eliminar el vehículo.');
   }
 };
 
 const handleEdit = () => {
-  // Ahora abre el modal con los datos del vehículo
   openModal(props.vehicle);
 };
-
-const showCopiedMessage = ref(false);
 
 const handleShare = () => {
   const vehicleId = props.vehicle._id || props.vehicle.id;
   const shareUrl = `${window.location.origin}/vehicles/${vehicleId}`;
-  
-  navigator.clipboard.writeText(shareUrl).then(() => {
-    showCopiedMessage.value = true;
-    setTimeout(() => {
-      showCopiedMessage.value = false;
-    }, 2000);
-  }).catch(err => {
-    console.error('Error al copiar:', err);
-  });
+  copyToClipboard(shareUrl);
 };
 
 const goToDetail = () => {
@@ -161,118 +138,4 @@ const goToDetail = () => {
 };
 </script>
 
-<style scoped>
-.card-actions-overlay {
-  position: absolute;
-  top: 15px;
-  right: 15px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  z-index: 10;
-  opacity: 0;
-  transform: translateX(10px);
-  transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
-}
-
-.vehicle-card:hover .card-actions-overlay {
-  opacity: 1;
-  transform: translateX(0);
-}
-
-.action-btn {
-  width: 38px;
-  height: 38px;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--glass-border);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: var(--transition);
-  backdrop-filter: blur(12px);
-  color: white;
-  background: rgba(0, 0, 0, 0.4);
-}
-
-.action-btn.share {
-  background: rgba(255, 255, 255, 0.1);
-}
-
-.share-wrapper {
-  position: relative;
-  display: flex;
-  align-items: center;
-}
-
-.copied-tooltip {
-  position: absolute;
-  right: 45px;
-  background: var(--black-cherry);
-  color: white;
-  padding: 4px 12px;
-  border-radius: 8px;
-  font-size: 11px;
-  font-weight: 700;
-  white-space: nowrap;
-  pointer-events: none;
-  box-shadow: var(--shadow-cherry);
-}
-
-.fade-enter-active, .fade-leave-active {
-  transition: all 0.3s ease;
-}
-.fade-enter-from, .fade-leave-to {
-  opacity: 0;
-  transform: translateX(10px);
-}
-
-.action-btn:hover {
-  transform: scale(1.1);
-  background: var(--black-cherry);
-  border-color: var(--black-cherry-light);
-}
-
-.action-btn.delete:hover {
-  background: var(--error);
-  border-color: var(--error);
-}
-
-.badge.available {
-  background: rgba(16, 185, 129, 0.2);
-  border-color: rgba(16, 185, 129, 0.3);
-  color: var(--success);
-  box-shadow: 0 4px 15px rgba(16, 185, 129, 0.15);
-}
-
-.badge.sold {
-  background: rgba(74, 13, 43, 0.8);
-  border-color: var(--black-cherry-light);
-  box-shadow: 0 4px 15px rgba(74, 13, 43, 0.25);
-}
-
-.book-btn.ask {
-  background: white;
-  color: var(--bg-main);
-  border: none;
-  font-weight: 700;
-}
-
-.book-btn.ask:hover {
-  background: var(--text-secondary);
-  transform: scale(1.05);
-}
-
-.book-btn.toggle-btn.available {
-  background: linear-gradient(135deg, var(--black-cherry), var(--black-cherry-vibrant));
-  color: white;
-  border-color: var(--black-cherry-light);
-  box-shadow: var(--shadow-cherry);
-}
-
-.book-btn.toggle-btn.sold {
-  background: var(--success);
-  color: white;
-  border-color: rgba(16, 185, 129, 0.5);
-}
-</style>
+<style scoped src="../../assets/styles/vehicleCardScoped.css"></style>
