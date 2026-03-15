@@ -73,8 +73,8 @@
                 ¿Ya eres parte de TicoAutos? 
                 <a href="#" @click.prevent="isLogin = true" class="link red">Inicia Sesión</a>
               </p>
-              <p style="margin-top: 15px;">
-                <a href="#" @click.prevent="$router.push('/vehicles')" class="link outline" style="justify-content: center; padding: 10px; border: 1px solid rgba(255,255,255,0.2); border-radius: 8px;">Explorar sin cuenta 🔍</a>
+              <p class="explore-without-account-wrapper">
+                <a href="#" @click.prevent="$router.push('/vehicles')" class="link outline explore-btn">Explorar sin cuenta 🔍</a>
               </p>
             </div>
             
@@ -99,16 +99,4 @@ const { form, isLogin, isLoading, error, handleSubmit } = useAuth();
 
 <style src="../../assets/styles/auth.css"></style>
 
-<style scoped>
-.login-error {
-    color: var(--error);
-    background: rgba(239, 68, 68, 0.08);
-    padding: 12px 16px;
-    border-radius: var(--radius-sm);
-    font-size: 0.85rem;
-    margin-bottom: 15px;
-    border: 1px solid rgba(239, 68, 68, 0.15);
-    text-align: center;
-    font-weight: 500;
-}
-</style>
+<style scoped src="../../assets/styles/loginViewScoped.css"></style>
