@@ -11,7 +11,7 @@
       
       <!-- Botones de Acción Profesionales -->
       <div class="card-actions-overlay">
-        <!-- Compartir (Para todos - Requisito UTN) -->
+        <!-- Compartir  -->
         <div class="share-wrapper">
           <transition name="fade">
             <span v-if="showCopiedMessage" class="copied-tooltip">¡Copiado!</span>
@@ -69,7 +69,7 @@
           @click.stop="handleStatusToggle"
           :class="['book-btn', 'toggle-btn', vehicle.status]"
         >
-          {{ vehicle.status === 'available' ? 'MARCAR VENDIDO' : 'A DISPONIBLE' }}
+          {{ vehicle.status === 'available' ? 'VENDIDO' : 'DISPONIBLE' }}
         </button>
 
         <!-- Si NO es el dueño: Botón de preguntar (Requisito UTN) -->
