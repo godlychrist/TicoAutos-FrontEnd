@@ -155,20 +155,4 @@ const executeSubmit = async () => {
   </div>
 </template>
 
-<style scoped>
-.error-message {
-  color: var(--error);
-  background: rgba(239, 68, 68, 0.08);
-  padding: 12px 16px;
-  border-radius: var(--radius-sm);
-  font-size: 0.85rem;
-  margin-bottom: 15px;
-  border: 1px solid rgba(239, 68, 68, 0.15);
-  text-align: center;
-  font-weight: 500;
-}
-
-.hidden-input {
-  display: none;
-}
-</style>
+<style scoped src="../../assets/styles/vehicleCreateModalScoped.css"></style>

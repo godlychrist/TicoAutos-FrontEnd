@@ -8,61 +8,48 @@ const { startChat } = useMessages();
 
 const route = useRoute();
 const router = useRouter();
-const { getVehicleById, imageUrl, loading, updateVehicleStatus } = useVehicles();
+
+// Importar todo de useVehicles
+const { 
+  getVehicleById, imageUrl, loading, updateVehicleStatus,
+  checkIsOwner, isAuthenticated, formatPrice, showCopiedMessage, 
+  copyToClipboard, requireLoginForMessages 
+} = useVehicles();
 
 const vehicle = ref(null);
-const showCopiedMessage = ref(false);
 
+// Variables reducidas gracias a checkIsOwner()
 const isAvailable = computed(() => vehicle.value?.status === 'available');
-
-// Obtener el usuario actual para verificar propiedad
-const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
-const currentUserId = currentUser._id || currentUser.id || currentUser.ID;
-
 const isOwner = computed(() => {
   const vehicleUserId = vehicle.value?.user_id || vehicle.value?.userId;
-  return currentUserId && vehicleUserId && String(currentUserId) === String(vehicleUserId);
+  return checkIsOwner(vehicleUserId);
 });
 
+// Lógica de Vistas
 const handleStatusToggle = async () => {
     const newStatus = vehicle.value.status === 'available' ? 'sold' : 'available';
     const success = await updateVehicleStatus(vehicle.value._id || vehicle.value.id, newStatus);
     if (success) {
-        // Actualizar localmente para no recargar todo
         vehicle.value.status = newStatus;
     }
 };
 
 const goToMessages = () => {
-  startChat(vehicle.value._id, vehicle.value.user_id);
+    requireLoginForMessages();
+};
+
+const handleShare = () => {
+    copyToClipboard(window.location.href);
+};
+
+const goBack = () => {
+    router.push('/vehicles');
 };
 
 onMounted(async () => {
   const id = route.params.id;
   vehicle.value = await getVehicleById(id);
 });
-
-const formatPrice = (price) => {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    maximumFractionDigits: 0
-  }).format(price);
-};
-
-const handleShare = () => {
-  const shareUrl = window.location.href;
-  navigator.clipboard.writeText(shareUrl).then(() => {
-    showCopiedMessage.value = true;
-    setTimeout(() => {
-      showCopiedMessage.value = false;
-    }, 2000);
-  });
-};
-
-const goBack = () => {
-  router.push('/vehicles');
-};
 </script>
 
 <template>
@@ -98,7 +85,7 @@ const goBack = () => {
             <h1 class="model-title">{{ vehicle.model }}</h1>
             <div class="year-price">
               <span class="year">{{ vehicle.year }}</span>
-              <span class="price">{{ formatPrice(vehicle.price) }}</span>
+              <span class="price">{{ formatPrice(vehicle.price, true) }}</span>
             </div>
 
             <div class="divider"></div>
@@ -125,14 +112,24 @@ const goBack = () => {
                 {{ isAvailable ? 'MARCAR COMO VENDIDO' : 'MARCAR DISPONIBLE' }}
               </button>
 
-              <!-- Si es visitante -->
+              <!-- Si es visitante AND logueado -->
               <button 
-                v-else 
+                v-else-if="isAuthenticated"
                 class="reserve-btn" 
                 @click="goToMessages"
                 :disabled="!isAvailable"
               >
                 {{ isAvailable ? 'HACER UNA PREGUNTA' : 'VENDIDO' }}
+              </button>
+              
+              <!-- Si es visitante NO logueado -->
+              <button 
+                v-else 
+                class="reserve-btn outline" 
+                @click="goToMessages"
+                :disabled="!isAvailable"
+              >
+                Inicia sesión para preguntar
               </button>
               
               <div class="share-container">
