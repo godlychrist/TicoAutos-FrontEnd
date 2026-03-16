@@ -16,7 +16,30 @@ const {
   error
 } = useMessages();
 
-const currentUserId = localStorage.getItem('userId');
+// El login guarda: localStorage.setItem('userId', response.user.id) => string puro
+const currentUserId = localStorage.getItem('userId') || '';
+
+const formatTime = (dateValue) => {
+  // last_message_at llega como [] (array vacío) si no hay fecha aún
+  if (!dateValue || Array.isArray(dateValue) || typeof dateValue !== 'string') return '';
+  try {
+    const date = new Date(dateValue);
+    if (isNaN(date.getTime())) return '';
+    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
+  } catch (e) {
+    return '';
+  }
+};
+
+const getOtherUser = (conv) => {
+  if (!conv) return { username: '...' };
+  // buyer_id y seller_id llegan como strings puros del backend (gracias al cast)
+  // currentUserId también es string puro (del login)
+  if (conv.buyer_id === currentUserId) {
+    return conv.seller ?? { username: 'Usuario' };
+  }
+  return conv.buyer ?? { username: 'Usuario' };
+};
 
 const newMessage = ref('');
 
@@ -85,12 +108,16 @@ const handleSendMessage = async () => {
               @click="selectConversation(conv._id)"
             >
               <div class="avatar">
-                {{ conv.seller_id ? 'V' : 'C' }}
+                {{ getOtherUser(conv)?.username?.charAt(0).toUpperCase() || '?' }}
               </div>
               <div class="conv-info">
                 <div class="conv-header">
-                  <span class="conv-name">Conversación #{{ (conv._id || '').substring(0,4) }}</span>
+                  <span class="conv-name text-truncate">{{ getOtherUser(conv)?.username || 'Cargando...' }}</span>
+                  <span class="conv-date">{{ formatTime(conv.last_message_at) }}</span>
                 </div>
+                <p class="conv-vehicle" v-if="conv.vehicle" style="font-size: 0.75rem; color: #aaa; margin: 2px 0;">
+                   {{ conv.vehicle.brand }} {{ conv.vehicle.model }}
+                </p>
                 <p class="conv-last-msg">
                   {{ conv.last_message || 'Inicia la conversación aquí...' }}
                 </p>
@@ -109,11 +136,13 @@ const handleSendMessage = async () => {
           <div v-if="activeConversation" class="chat-main">
             <header class="chat-header">
               <div class="avatar sm">
-                {{ activeConversation.seller_id ? 'V' : 'C' }}
+                {{ getOtherUser(activeConversation)?.username?.charAt(0).toUpperCase() || 'U' }}
               </div>
               <div class="chat-meta">
-                <h3>Vendedor #{{ (activeConversation._id || '').substring(0,4) }}</h3>
-                <p class="status">Chat Activo</p>
+                <h3>{{ getOtherUser(activeConversation)?.username || 'Dueño' }}</h3>
+                <p class="status" v-if="activeConversation.vehicle">
+                   Interés en: {{ activeConversation.vehicle.brand }} {{ activeConversation.vehicle.model }}
+                </p>
               </div>
             </header>
 
@@ -136,7 +165,7 @@ const handleSendMessage = async () => {
                 <div class="bubble">
                   {{ msg.message }}
                 </div>
-                <span class="msg-time">Entregado</span>
+                <span class="msg-time">{{ msg.time }}</span>
               </div>
             </div>
 
