@@ -2,6 +2,9 @@
 import { ref, onMounted, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useVehicles } from '@/composables/useVehicles.js';
+import { useMessages } from '@/composables/useMessages.js';
+
+const { startChat } = useMessages();
 
 const route = useRoute();
 const router = useRouter();
@@ -31,7 +34,7 @@ const handleStatusToggle = async () => {
 };
 
 const goToMessages = () => {
-  router.push('/messages');
+  startChat(vehicle.value._id, vehicle.value.user_id);
 };
 
 onMounted(async () => {
