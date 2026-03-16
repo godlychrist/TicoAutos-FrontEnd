@@ -16,6 +16,8 @@ const {
   error
 } = useMessages();
 
+const currentUserId = localStorage.getItem('userId');
+
 const newMessage = ref('');
 
 const goBack = () => {
@@ -129,7 +131,7 @@ const handleSendMessage = async () => {
                 v-for="msg in messages" 
                 :key="msg._id"
                 class="msg-wrapper"
-                :class="msg.sender_id === activeConversation.buyer_id ? 'sent' : 'received'"
+                :class="String(msg.sender_id) === String(currentUserId) ? 'sent' : 'received'"
               >
                 <div class="bubble">
                   {{ msg.message }}
