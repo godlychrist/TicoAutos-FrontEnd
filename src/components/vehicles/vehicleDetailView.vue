@@ -116,7 +116,7 @@ onMounted(async () => {
               <button 
                 v-else-if="isAuthenticated"
                 class="reserve-btn" 
-                @click="goToMessages"
+                @click="startChat(vehicle._id, vehicle.user_id)"
                 :disabled="!isAvailable"
               >
                 {{ isAvailable ? 'HACER UNA PREGUNTA' : 'VENDIDO' }}
