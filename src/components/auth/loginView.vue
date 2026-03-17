@@ -44,14 +44,7 @@
                 required
               />
 
-              <div class="helper-links" v-if="isLogin">
-                <label class="custom-checkbox">
-                  <input type="checkbox">
-                  <span class="checkmark"></span>
-                  <span class="label-text">Recordarme</span>
-                </label>
-                <a href="#" class="link red">¿Olvidaste tu contraseña?</a>
-              </div>
+
 
               <div v-if="error" class="login-error">
                 {{ error }}
@@ -78,7 +71,7 @@
               </p>
             </div>
             
-            <socialLogins />
+
           </div>
         </div>
 
@@ -90,7 +83,7 @@
 <script setup>
 import authBrandSide from './authBrandSide.vue';
 import authInput from './authInput.vue';
-import socialLogins from './socialLogins.vue';
+
 import { useAuth } from '@/composables/useAuth.js';
 
 const { form, isLogin, isLoading, error, handleSubmit } = useAuth();
