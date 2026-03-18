@@ -1,3 +1,4 @@
+// Interceptor global para peticiones Axios (Frontend-Backend)
 import axios from 'axios';
 
 const api = axios.create({
@@ -7,12 +8,12 @@ const api = axios.create({
   },
 });
 
-// Interceptor to add the JWT token to every request
+// Interceptor de Salida: Inyecta el Token de sesión en todas las peticiones
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token');
     if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+      config.headers.Authorization = `Bearer ${token}`; // Inserta JWT
     }
     return config;
   },
@@ -21,10 +22,11 @@ api.interceptors.request.use(
   }
 );
 
-// Response interceptor to handle unauthorized errors (like when secret changes)
+// Interceptor de Entrada: Maneja errores generales del servidor
 api.interceptors.response.use(
   (response) => response,
   (error) => {
+    // Si la sesión expiró (401), cierra la sesión automáticamente
     if (error.response && error.response.status === 401) {
       localStorage.removeItem('token');
       localStorage.removeItem('user');

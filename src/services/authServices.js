@@ -1,5 +1,7 @@
 import api from './api';
 
+// Peticiones al servidor para Autenticación
+
 const register = async (user) => {
     const response = await api.post('/register', user);
     return response.data;
