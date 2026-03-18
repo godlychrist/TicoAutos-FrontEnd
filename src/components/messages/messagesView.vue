@@ -1,49 +1,47 @@
 <script setup>
+// Vista protegida: Centro de Mensajería y Chats activos
 import { onMounted, ref } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useMessages } from '@/composables/useMessages';
 
 const router = useRouter();
 const route = useRoute();
+
 const { 
-  loadConversations, 
-  conversations, 
-  loading, 
-  loadConversation, 
-  activeConversation,
-  messages,
-  sendMessage,
-  error
+  loadConversations, conversations, loading, loadConversation, 
+  activeConversation, messages, sendMessage, error
 } = useMessages();
 
 const currentUserId = localStorage.getItem('userId');
-
 const newMessage = ref('');
 
 const goBack = () => {
     router.push('/vehicles');
 };
 
+// Carga base de datos de chats al montar la vista
 onMounted(async () => {
   await loadConversations();
   if (route.query.id) {
+    // Restaurar último chat abierto si el enlace tiene ID
     await loadConversation(route.query.id);
   }
 });
 
+// Captura click en lista lateral para ver un chat
 const selectConversation = async (id) => {
   await loadConversation(id);
   router.push({ query: { id } });
 };
 
+// Empaqueta el mensaje actual para la API
 const handleSendMessage = async () => {
   if (!newMessage.value.trim() || !activeConversation.value) return;
   
   const sent = await sendMessage(activeConversation.value._id, newMessage.value);
   if (sent) {
-    newMessage.value = '';
+    newMessage.value = ''; // Reset input
   } else {
-    // Limpia el error después de 3 segundos
     setTimeout(() => { if(error) error.value = null; }, 3000);
   }
 };
