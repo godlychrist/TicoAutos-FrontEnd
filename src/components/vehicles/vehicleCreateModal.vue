@@ -1,3 +1,11 @@
+<!--
+  vehicleCreateModal.vue - Modal dual para crear y editar vehículos.
+
+  Detecta automáticamente si está en modo creación o edición según
+  la presencia de un ID en el formulario global (form.id).
+  Soporta preview de imagen (nueva o existente), subida de archivos,
+  y ejecuta la operación correspondiente (create/update) al confirmar.
+-->
 <script setup>
 import { ref, computed, watch } from 'vue';
 import { useVehicles } from '@/composables/useVehicles.js';
@@ -15,7 +23,7 @@ const emit = defineEmits(['created', 'updated']);
 const fileInput = ref(null);
 const imagePreview = ref(null);
 
-// 1. WATCH PARA MOSTRAR LA IMAGEN VIEJA
+// Watcher: mostrar preview de la imagen existente cuando se abre en modo edición
 watch(() => form.image, (newImage) => {
   if (typeof newImage === 'string' && newImage !== '') {
     imagePreview.value = newImage.startsWith('http') 
@@ -26,6 +34,7 @@ watch(() => form.image, (newImage) => {
   }
 }, { immediate: true });
 
+/** Manejar selección de archivo: actualizar form.image y generar preview */
 const onFileChange = (event) => {
   const file = event.target.files[0];
   if (file) {
@@ -36,18 +45,20 @@ const onFileChange = (event) => {
   }
 };
 
+/** Limpiar la imagen seleccionada */
 const clearImage = () => {
   imagePreview.value = null;
   form.image = null;
   if (fileInput.value) fileInput.value.value = '';
 };
 
-// 2. COMPUTED REFORZADO PARA DETECTAR EL ID
+/** Computed: detectar modo edición cuando existe un ID válido en el form */
 const isEditing = computed(() => {
   const vehicleId = form.id || form._id;
   return vehicleId !== null && vehicleId !== undefined && vehicleId !== '';
 });
 
+/** Ejecutar creación o actualización según el modo detectado */
 const executeSubmit = async () => {
   if (loading.value) return;
   
@@ -55,7 +66,6 @@ const executeSubmit = async () => {
     const currentId = form.id || form._id;
     let success = false;
 
-    // 3. DECISIÓN: ¿CREAR O EDITAR?
     if (isEditing.value) {
       success = await updateVehicle(currentId);
     } else {

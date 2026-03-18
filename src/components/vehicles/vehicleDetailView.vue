@@ -1,3 +1,13 @@
+<!--
+  vehicleDetailView.vue - Vista de detalle de un vehículo individual.
+
+  Muestra imagen a tamaño completo, datos del vehículo, info del propietario,
+  y acciones contextuales según el rol del visitante:
+  - Dueño: toggle de estado (available ↔ sold).
+  - Autenticado (no dueño): botón "Hacer una pregunta" → inicia chat.
+  - No autenticado: botón que redirige al login.
+  Incluye funcionalidad de compartir enlace.
+-->
 <script setup>
 import { ref, onMounted, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
@@ -9,7 +19,6 @@ const { startChat } = useMessages();
 const route = useRoute();
 const router = useRouter();
 
-// Importar todo de useVehicles
 const { 
   getVehicleById, imageUrl, loading, updateVehicleStatus,
   checkIsOwner, isAuthenticated, formatPrice, showCopiedMessage, 
@@ -18,14 +27,13 @@ const {
 
 const vehicle = ref(null);
 
-// Variables reducidas gracias a checkIsOwner()
 const isAvailable = computed(() => vehicle.value?.status === 'available');
 const isOwner = computed(() => {
   const vehicleUserId = vehicle.value?.user_id || vehicle.value?.userId;
   return checkIsOwner(vehicleUserId);
 });
 
-// Lógica de Vistas
+/** Toggle de estado del vehículo y actualizar UI local */
 const handleStatusToggle = async () => {
     const newStatus = vehicle.value.status === 'available' ? 'sold' : 'available';
     const success = await updateVehicleStatus(vehicle.value._id || vehicle.value.id, newStatus);
@@ -34,10 +42,12 @@ const handleStatusToggle = async () => {
     }
 };
 
+/** Redirigir a mensajes (con validación de autenticación) */
 const goToMessages = () => {
     requireLoginForMessages();
 };
 
+/** Copiar URL actual del detalle al portapapeles */
 const handleShare = () => {
     copyToClipboard(window.location.href);
 };
@@ -46,6 +56,7 @@ const goBack = () => {
     router.push('/vehicles');
 };
 
+/** Cargar datos del vehículo al montar el componente */
 onMounted(async () => {
   const id = route.params.id;
   vehicle.value = await getVehicleById(id);

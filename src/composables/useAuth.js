@@ -1,3 +1,10 @@
+/**
+ * useAuth.js - Composable de autenticación (Vue 3 Composition API).
+ *
+ * Gestiona el estado reactivo del formulario de login/registro,
+ * el flujo de autenticación (toggle entre modos), almacenamiento
+ * del token JWT en localStorage, y la navegación post-login.
+ */
 import { ref, reactive } from 'vue';
 import authService from '@/services/authServices.js';
 import router from '@/router';
@@ -7,6 +14,7 @@ export function useAuth() {
     const isLoading = ref(false);
     const isLogin = ref(true);
 
+    // Estado reactivo del formulario (compartido entre login y registro)
     const form = reactive({
         username: '',
         password: '',
@@ -14,13 +22,19 @@ export function useAuth() {
         rememberMe: false
     });
 
+    /** Alternar entre modo Login y modo Registro */
     const toggleAuthMode = () => {
         isLogin.value = !isLogin.value;
     };
 
+    /**
+     * Procesar el formulario según el modo actual.
+     * - Login: obtiene token JWT y lo almacena en localStorage, redirige a /vehicles.
+     * - Registro: valida contraseña mínima, registra al usuario, y cambia a modo login.
+     */
     const handleSubmit = async () => {
         isLoading.value = true;
-        error.value = null; // Limpiar errores previos
+        error.value = null;
         try {
             if (isLogin.value) {
                 const response = await authService.login(form);
@@ -32,7 +46,6 @@ export function useAuth() {
                 }
 
             } else {
-                // Validación de contraseña corta en el cliente
                 if (form.password.length < 6) {
                     error.value = "La contraseña debe tener al menos 6 dígitos";
                     isLoading.value = false;
@@ -51,7 +64,7 @@ export function useAuth() {
                 form.confirmPassword = '';
             }
         } catch (err) {
-            // Extraer el mensaje de error del backend si existe
+            // Extraer mensaje de error del backend (prioriza 'error' sobre 'message')
             if (err.response && err.response.data && err.response.data.error) {
                 error.value = err.response.data.error;
             } else if (err.response && err.response.data && err.response.data.message) {
@@ -60,14 +73,13 @@ export function useAuth() {
                 error.value = "Credenciales incorrectas o error de conexión";
             }
 
-            // Limpiar campos para que el usuario reintente
             form.password = '';
-            // Si quieres limpiar también el username opcionalmente:
-            // form.username = ''; 
         } finally {
             isLoading.value = false;
         }
     };
+
+    /** Cerrar sesión: limpiar localStorage y redirigir al login */
     const handleLogout = () => {
         localStorage.removeItem('token');
         localStorage.removeItem('user');
@@ -75,3 +87,4 @@ export function useAuth() {
     }
     return { form, isLogin, isLoading, error, toggleAuthMode, handleSubmit, handleLogout };
 }
+

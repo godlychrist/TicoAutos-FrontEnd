@@ -1,13 +1,27 @@
+/**
+ * useVehicles.js - Composable principal de vehículos (Vue 3 Composition API).
+ *
+ * Centraliza TODO el estado y lógica de vehículos de la aplicación:
+ * - Estado global compartido (vehicles, form, pagination, filters)
+ * - CRUD completo (crear, editar, eliminar, cambiar estado)
+ * - Filtros de búsqueda y paginación
+ * - Utilidades globales: usuario autenticado, formateo de precios,
+ *   verificación de propiedad, clipboard, y navegación condicional.
+ *
+ * Los refs/reactives definidos FUERA de la función son singleton (estado global).
+ * Los definidos DENTRO se re-crean por componente que lo use.
+ */
 import { ref, reactive, computed } from 'vue';
 import vehicleService from '@/services/vehicleService';
 import { useRouter } from 'vue-router';
 
+// ── Estado global (singleton compartido entre todos los componentes) ──
 const isModalOpen = ref(false);
 const vehicles = ref([]);
 const loading = ref(false);
 const error = ref(null);
 
-// 1. EL ID TIENE QUE EXISTIR AQUÍ DESDE EL PRINCIPIO
+// Formulario reactivo para crear/editar vehículos
 const form = reactive({
     id: null,
     model: '',
@@ -18,7 +32,7 @@ const form = reactive({
     image: null
 });
 
-// Paginación compartida de Cris
+// Estado de paginación (sincronizado con Laravel paginate)
 const pagination = reactive({
     total: 0,
     per_page: 8,
@@ -28,7 +42,7 @@ const pagination = reactive({
     to: 8
 });
 
-// Filtros compartidos de Cris
+// Filtros de búsqueda (se envían como query params al backend)
 const filters = reactive({
     search: '',
     brand: '',
@@ -40,8 +54,9 @@ const filters = reactive({
 
 export function useVehicles() {
 
+    /** Resetear el formulario a valores por defecto */
     const resetForm = () => {
-        form.id = null; // 2. LIMPIAR EL ID AQUÍ TAMBIÉN
+        form.id = null;
         form.model = '';
         form.brand = '';
         form.year = '2024';
@@ -50,6 +65,7 @@ export function useVehicles() {
         form.image = null;
     };
 
+    /** Limpiar todos los filtros de búsqueda */
     const resetFilters = () => {
         filters.search = '';
         filters.brand = '';
@@ -59,14 +75,17 @@ export function useVehicles() {
         filters.price_range = '';
     }
 
+    /**
+     * Abrir el modal de creación/edición.
+     * Si recibe un vehículo, pre-carga sus datos en el form (modo edición).
+     * Si no recibe nada, resetea el form (modo creación).
+     */
     const openModal = (vehicle = null) => {
-        // DEBUG: Esto nos dirá qué está llegando cuando le das al botón Editar
         console.log("VEHÍCULO RECIBIDO EN OPEN MODAL:", vehicle);
 
         if (vehicle) {
-            // 3. CAPTURAR EL ID (Cubrimos todas las opciones posibles)
+            // Capturar el ID (cubre _id de MongoDB, id de cast, etc.)
             form.id = vehicle.id || vehicle._id || vehicle.ID;
-
             form.model = vehicle.model;
             form.brand = vehicle.brand;
             form.year = vehicle.year;
@@ -79,11 +98,17 @@ export function useVehicles() {
         isModalOpen.value = true;
     };
 
+    /** Cerrar el modal y limpiar el formulario */
     const closeModal = () => {
         isModalOpen.value = false;
         resetForm();
     };
 
+    /**
+     * Crear un nuevo vehículo.
+     * Construye un FormData con todos los campos + imagen + user_id del localStorage.
+     * Refresca la lista automáticamente al completarse.
+     */
     const handleCreateVehicle = async () => {
         loading.value = true;
         error.value = null;
@@ -99,6 +124,7 @@ export function useVehicles() {
                 formData.append('image', form.image);
             }
 
+            // Adjuntar user_id desde la sesión almacenada
             const storedUser = localStorage.getItem('user');
             if (storedUser) {
                 const user = JSON.parse(storedUser);
@@ -120,12 +146,15 @@ export function useVehicles() {
         }
     };
 
+    /**
+     * Obtener lista de vehículos con filtros y paginación.
+     * Sincroniza el estado de paginación con la respuesta de Laravel.
+     */
     const getVehicles = async (page = 1) => {
         loading.value = true;
         error.value = null;
         try {
             const data = await vehicleService.getAll(filters, page);
-            // Laravel regresa un objeto con data, current_page, etc.
             pagination.current_page = data.current_page;
             pagination.total = data.total;
             pagination.last_page = data.last_page;
@@ -139,12 +168,18 @@ export function useVehicles() {
         }
     }
 
+    /** Generar URL completa de la imagen (local storage de Laravel o URL externa) */
     const imageUrl = (image) => {
         if (!image) return '';
         if (image.startsWith('http')) return image;
         return `http://127.0.0.1:8000/storage/${image}`;
     }
 
+    /**
+     * Actualizar un vehículo existente.
+     * Usa FormData + method spoofing (_method: PUT) para compatibilidad con Laravel.
+     * Solo adjunta la imagen si es un archivo nuevo (no string de ruta existente).
+     */
     const updateVehicle = async (id) => {
         loading.value = true;
         try {
@@ -155,7 +190,6 @@ export function useVehicles() {
             formData.append('price', form.price);
             formData.append('status', form.status);
 
-            // 1. Agregamos el user_id 
             const storedUser = localStorage.getItem('user');
             if (storedUser) {
                 const user = JSON.parse(storedUser);
@@ -165,7 +199,7 @@ export function useVehicles() {
                 }
             }
 
-            // TRUCO PARA LARAVEL (Spoofing)
+            // Method spoofing: Laravel interpreta POST + _method=PUT como PUT real
             formData.append('_method', 'PUT');
 
             if (form.image && typeof form.image !== 'string') {
@@ -173,7 +207,7 @@ export function useVehicles() {
             }
 
             await vehicleService.update(id, formData);
-            await getVehicles(); // Recargar la lista automáticamente
+            await getVehicles();
             return true;
         } catch (err) {
             console.error("Error al editar:", err);
@@ -183,11 +217,12 @@ export function useVehicles() {
         }
     };
 
+    /** Eliminar un vehículo y refrescar la lista */
     const handleDeleteVehicle = async (id) => {
         loading.value = true;
         try {
             await vehicleService.remove(id);
-            await getVehicles(); // Recargar la lista automáticamente
+            await getVehicles();
             return true;
         } catch (err) {
             console.error("Error al eliminar:", err);
@@ -197,11 +232,12 @@ export function useVehicles() {
         }
     };
 
+    /** Cambiar el estado de un vehículo (available ↔ sold) */
     const updateVehicleStatus = async (id, newStatus) => {
         loading.value = true;
         try {
             await vehicleService.update(id, { status: newStatus });
-            await getVehicles(); // Refrescar lista
+            await getVehicles();
             return true;
         } catch (err) {
             console.error("Error al cambiar estado:", err);
@@ -211,6 +247,7 @@ export function useVehicles() {
         }
     };
 
+    /** Obtener un vehículo individual por ID (para la vista de detalle) */
     const getVehicleById = async (id) => {
         loading.value = true;
         error.value = null;
@@ -225,32 +262,39 @@ export function useVehicles() {
         }
     };
 
+    /** Lista única de marcas (computed desde los vehículos cargados en memoria) */
     const brands = computed(() => {
         const allBrands = vehicles.value.map(v => v.brand);
         return [...new Set(allBrands)];
     });
 
-    // --- UTILIDADES GLOBALES ---
+    // ── Utilidades globales del usuario ──
     const router = useRouter();
 
+    /** Datos del usuario autenticado desde localStorage */
     const currentUserData = computed(() => {
         return localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')) : null;
     });
 
+    /** ID del usuario actual (soporta _id, id, ID de MongoDB) */
     const currentUserId = computed(() => {
         return currentUserData.value ? (currentUserData.value._id || currentUserData.value.id || currentUserData.value.ID) : null;
     });
 
+    /** Flag reactivo: ¿el usuario tiene sesión activa? */
     const isAuthenticated = computed(() => !!localStorage.getItem('token'));
 
+    /** Nombre del usuario para mostrar en la UI */
     const currentUserName = computed(() => {
         return currentUserData.value ? (currentUserData.value.username || currentUserData.value.name) : 'Usuario';
     });
 
+    /** Verificar si el usuario actual es el dueño de un vehículo dado */
     const checkIsOwner = (vehicleUserId) => {
         return Boolean(currentUserId.value && vehicleUserId && String(currentUserId.value) === String(vehicleUserId));
     };
 
+    /** Formatear precio con locale US (opcionalmente con símbolo de moneda) */
     const formatPrice = (price, useCurrency = false) => {
         if (useCurrency) {
             return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(price);
@@ -260,6 +304,7 @@ export function useVehicles() {
 
     const showCopiedMessage = ref(false);
 
+    /** Copiar URL al portapapeles con feedback visual temporal */
     const copyToClipboard = (url) => {
         navigator.clipboard.writeText(url).then(() => {
             showCopiedMessage.value = true;
@@ -267,6 +312,7 @@ export function useVehicles() {
         }).catch(err => console.error('Error al copiar:', err));
     };
 
+    /** Redirigir a mensajes si está autenticado, o al login si no lo está */
     const requireLoginForMessages = () => {
         if (!isAuthenticated.value) {
             alert("Debes iniciar sesión para hacer preguntas al vendedor.");
