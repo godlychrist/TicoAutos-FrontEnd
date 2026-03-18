@@ -1,15 +1,15 @@
 <script setup>
+// Vista: Ficha detallada de un vehículo en específico
 import { ref, onMounted, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useVehicles } from '@/composables/useVehicles.js';
 import { useMessages } from '@/composables/useMessages.js';
 
 const { startChat } = useMessages();
-
 const route = useRoute();
 const router = useRouter();
 
-// Importar todo de useVehicles
+// Extraer utilidades y validadores de la lógica de vehículos
 const { 
   getVehicleById, imageUrl, loading, updateVehicleStatus,
   checkIsOwner, isAuthenticated, formatPrice, showCopiedMessage, 
@@ -18,24 +18,21 @@ const {
 
 const vehicle = ref(null);
 
-// Variables reducidas gracias a checkIsOwner()
+// Reglas de estado de vista y permisos
 const isAvailable = computed(() => vehicle.value?.status === 'available');
-const isOwner = computed(() => {
-  const vehicleUserId = vehicle.value?.user_id || vehicle.value?.userId;
-  return checkIsOwner(vehicleUserId);
-});
+const isOwner = computed(() => vehicle.value && checkIsOwner(vehicle.value.user_id || vehicle.value.userId));
 
-// Lógica de Vistas
+// Eventos de usuario para la Vista de Detalles
 const handleStatusToggle = async () => {
     const newStatus = vehicle.value.status === 'available' ? 'sold' : 'available';
     const success = await updateVehicleStatus(vehicle.value._id || vehicle.value.id, newStatus);
-    if (success) {
-        vehicle.value.status = newStatus;
-    }
+    if (success) vehicle.value.status = newStatus;
 };
 
-const goToMessages = () => {
-    requireLoginForMessages();
+const goToMessages = async () => {
+    if (requireLoginForMessages()) {
+        await startChat(vehicle.value);
+    }
 };
 
 const handleShare = () => {
@@ -46,9 +43,9 @@ const goBack = () => {
     router.push('/vehicles');
 };
 
+// Carga el vehículo por prop de ruta (ID)
 onMounted(async () => {
-  const id = route.params.id;
-  vehicle.value = await getVehicleById(id);
+  vehicle.value = await getVehicleById(route.params.id);
 });
 </script>
 
@@ -116,7 +113,7 @@ onMounted(async () => {
               <button 
                 v-else-if="isAuthenticated"
                 class="reserve-btn" 
-                @click="goToMessages"
+                @click="startChat(vehicle._id, vehicle.user_id)"
                 :disabled="!isAvailable"
               >
                 {{ isAvailable ? 'HACER UNA PREGUNTA' : 'VENDIDO' }}
