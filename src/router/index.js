@@ -1,3 +1,13 @@
+/**
+ * router/index.js - Configuración de Vue Router.
+ *
+ * Define las rutas de la aplicación y un guard de navegación global
+ * que protege las rutas privadas (mensajes) redirigiendo al login
+ * si no existe un token JWT válido en localStorage.
+ *
+ * Rutas públicas: login, vehicles (catálogo), vehicle-detail.
+ * Rutas protegidas: messages (requieren autenticación).
+ */
 import { createRouter, createWebHistory } from 'vue-router';
 import loginView from '../components/auth/loginView.vue';
 import vehicleListView from '../components/vehicles/vehicleListView.vue';
@@ -33,13 +43,13 @@ const router = createRouter({
             component: messagesView 
         }
     ]
-});
+})
 
-// Guardián de navegación: Protege rutas que requieren autenticación
+// Guard global: verifica autenticación antes de acceder a rutas protegidas
 router.beforeEach((to, from, next) => {
     const token = localStorage.getItem('token');
-    
-    const publicPages = ['login', 'vehicles', 'vehicle-detail']; // Rutas permitidas sin login
+
+    const publicPages = ['login', 'vehicles', 'vehicle-detail'];
     const authRequired = !publicPages.includes(to.name);
 
     if (authRequired && !token) {
@@ -50,3 +60,4 @@ router.beforeEach((to, from, next) => {
 });
 
 export default router;
+

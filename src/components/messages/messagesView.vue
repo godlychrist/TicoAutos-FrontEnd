@@ -1,3 +1,12 @@
+<!--
+  messagesView.vue - Sistema de mensajería completo.
+
+  Layout tipo WhatsApp/Messenger: sidebar con lista de conversaciones
+  y área principal de chat con hilo de mensajes.
+  Soporta: selección de conversación, envío de mensajes con Enter,
+  detección de mensajes propios vs ajenos, apertura directa por query param,
+  y toast de errores con auto-dismiss.
+-->
 <script setup>
 // Vista protegida: Centro de Mensajería y Chats activos
 import { onMounted, ref } from 'vue';
@@ -12,11 +21,14 @@ const {
   activeConversation, messages, sendMessage, error
 } = useMessages();
 
-// El login guarda: localStorage.setItem('userId', response.user.id) => string puro
+// ID del usuario actual (string puro almacenado en login)
 const currentUserId = localStorage.getItem('userId') || '';
 
+/**
+ * Formatear timestamp a hora legible.
+ * Maneja edge cases de MongoDB (arrays vacíos, valores nulos).
+ */
 const formatTime = (dateValue) => {
-  // last_message_at llega como [] (array vacío) si no hay fecha aún
   if (!dateValue || Array.isArray(dateValue) || typeof dateValue !== 'string') return '';
   try {
     const date = new Date(dateValue);
@@ -27,10 +39,9 @@ const formatTime = (dateValue) => {
   }
 };
 
+/** Determinar el otro participante de la conversación (no el usuario actual) */
 const getOtherUser = (conv) => {
   if (!conv) return { username: '...' };
-  // buyer_id y seller_id llegan como strings puros del backend (gracias al cast)
-  // currentUserId también es string puro (del login)
   if (conv.buyer_id === currentUserId) {
     return conv.seller ?? { username: 'Usuario' };
   }
@@ -43,7 +54,7 @@ const goBack = () => {
     router.push('/vehicles');
 };
 
-// Carga base de datos de chats al montar la vista
+/** Al montar: cargar conversaciones y abrir la indicada por query param (si existe) */
 onMounted(async () => {
   await loadConversations();
   if (route.query.id) {
@@ -52,13 +63,13 @@ onMounted(async () => {
   }
 });
 
-// Captura click en lista lateral para ver un chat
+/** Seleccionar una conversación y actualizar la URL con su ID */
 const selectConversation = async (id) => {
   await loadConversation(id);
   router.push({ query: { id } });
 };
 
-// Empaqueta el mensaje actual para la API
+/** Enviar mensaje y limpiar el input. Si falla, auto-dismiss del error en 3s */
 const handleSendMessage = async () => {
   if (!newMessage.value.trim() || !activeConversation.value) return;
   

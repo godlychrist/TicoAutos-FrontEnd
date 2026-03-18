@@ -1,4 +1,10 @@
-// Interceptor global para peticiones Axios (Frontend-Backend)
+/**
+ * api.js - Instancia centralizada de Axios para comunicación con el backend.
+ *
+ * Configura la baseURL apuntando a la API de Laravel y aplica dos interceptores:
+ * - Request: inyecta automáticamente el token JWT desde localStorage.
+ * - Response: redirige al login si el backend responde 401 (token inválido/expirado).
+ */
 import axios from 'axios';
 
 const api = axios.create({
@@ -8,7 +14,7 @@ const api = axios.create({
   },
 });
 
-// Interceptor de Salida: Inyecta el Token de sesión en todas las peticiones
+// Interceptor de peticiones: adjuntar token JWT a cada request
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token');
@@ -22,7 +28,7 @@ api.interceptors.request.use(
   }
 );
 
-// Interceptor de Entrada: Maneja errores generales del servidor
+// Interceptor de respuestas: limpiar sesión y redirigir si el token ya no es válido
 api.interceptors.response.use(
   (response) => response,
   (error) => {
@@ -37,3 +43,4 @@ api.interceptors.response.use(
 );
 
 export default api;
+

@@ -1,8 +1,14 @@
+/**
+ * useMessages.js - Composable de mensajería (Vue 3 Composition API).
+ *
+ * Gestiona el estado de conversaciones y mensajes del chat.
+ * Cada instancia tiene su propio estado (no es singleton como useVehicles),
+ * lo que permite múltiples usos independientes si fuera necesario.
+ */
 import { ref } from 'vue';
 import messageServices from '@/services/messageServices';
 import { useRouter } from 'vue-router';
 
-// Composable: Gestiona el estado y la lógica del Chat/Mensajes
 export function useMessages() {
     const conversations = ref([]);
     const messages = ref([]);
@@ -11,7 +17,7 @@ export function useMessages() {
     const error = ref(null);
     const router = useRouter();
 
-    // Carga la lista de chats del usuario (Inbox)
+    /** Cargar la lista de todas las conversaciones del usuario autenticado */
     const loadConversations = async () => {
         loading.value = true;
         error.value = null;
@@ -25,21 +31,41 @@ export function useMessages() {
         }
     };
 
-    // Carga los mensajes de un chat específico
+    /** Cargar los mensajes de una conversación específica y marcarla como activa */
     const loadConversation = async (id) => {
+        if (!id) return;
         loading.value = true;
         error.value = null;
         try {
+            // 1. Traer los mensajes
             messages.value = await messageServices.getConversation(id);
-            activeConversation.value = conversations.value.find(c => c._id === id);
+            
+            // 2. Asegurarse de tener la lista de conversaciones cargada
+            if (conversations.value.length === 0) {
+                await loadConversations();
+            }
+            
+            // 3. Buscar la conversación actual en la lista para tener los metadatos (avatar, nombre, etc.)
+            activeConversation.value = conversations.value.find(c => String(c._id) === String(id));
+            
+            // 4. Si aún no está, recargar por si es un chat recién creado
+            if (!activeConversation.value) {
+                await loadConversations();
+                activeConversation.value = conversations.value.find(c => String(c._id) === String(id));
+            }
+
+            if (!activeConversation.value) {
+                console.warn(`Conversación ${id} no encontrada en el Inbox.`);
+            }
         } catch (err) {
             console.error("Error al cargar la conversacion", err);
+            error.value = "No tienes permiso para ver este chat o no existe.";
         } finally {
             loading.value = false;
         }
     };
 
-    // Crea un nuevo chat (si no existe) para un vehículo
+    /** Crear o reutilizar una conversación para un vehículo con un vendedor */
     const createConversation = async (vehicleId, sellerId) => {
         loading.value = true;
         error.value = null;
@@ -52,7 +78,10 @@ export function useMessages() {
         }
     };
 
-    // Envía un nuevo mensaje a un chat activo
+    /**
+     * Enviar un mensaje y recargar la conversación para reflejar el nuevo mensaje.
+     * Retorna true si se envió correctamente, undefined si hubo error.
+     */
     const sendMessage = async (conversationId, message) => {
         loading.value = true;
         error.value = null;
@@ -68,7 +97,10 @@ export function useMessages() {
         }
     };
 
-    // Crea un chat y redirige automáticamente a la vista de Mensajes
+    /**
+     * Atajo: crear/reutilizar conversación y navegar directamente al chat.
+     * Usado desde las tarjetas y detalle de vehículo (botón "Preguntar").
+     */
     const startChat = async (vehicleId, sellerId) => {
         const conversation = await createConversation(vehicleId, sellerId);
         if (conversation) {

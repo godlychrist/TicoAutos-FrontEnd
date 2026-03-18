@@ -1,3 +1,9 @@
+<!--
+  authInput.vue - Input reutilizable para formularios de autenticación.
+
+  Implementa v-model bidireccional usando modelValue/update:modelValue.
+  Usa el patrón de "floating label" (placeholder=" " + CSS :placeholder-shown).
+-->
 <template>
   <div class="input-field">
     <input 
@@ -25,3 +31,4 @@ defineProps({
 
 defineEmits(['update:modelValue']);
 </script>
+

@@ -1,3 +1,11 @@
+<!--
+  App.vue - Componente raíz de la aplicación.
+
+  Contiene el <router-view> para renderizar las vistas según la ruta activa.
+  Define el sistema de diseño global: paleta de colores "Black Cherry",
+  tipografía (Outfit + Playfair Display), glassmorphism, scrollbar personalizado,
+  transiciones de página, y animaciones utilitarias (fadeInUp, shimmer, pulse).
+-->
 <template>
   <div id="app">
     <router-view />

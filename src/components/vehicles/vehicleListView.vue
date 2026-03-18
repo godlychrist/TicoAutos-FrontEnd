@@ -1,3 +1,11 @@
+<!--
+  vehicleListView.vue - Página principal del catálogo de vehículos.
+
+  Contiene: navbar con branding y acciones de usuario, barra de búsqueda
+  con filtros avanzados (marca, año, precio, estado), grid de vehicleCards
+  con paginación, modal de creación/edición, y estado vacío.
+  Carga los vehículos automáticamente al montarse el componente.
+-->
 <script setup>
 // Vista: Catálogo General de Vehículos con filtros y paginación
 import { onMounted } from 'vue';
@@ -9,7 +17,7 @@ import vehicleCreateModal from './vehicleCreateModal.vue';
 const { handleLogout } = useAuth();
 defineProps({ username: String });
 
-// Importar estado global completo desde su respectivo composable
+// Estado global compartido desde el composable
 const {
   vehicles, isModalOpen, openModal, getVehicles, brands, 
   filters, resetFilters, pagination, isAuthenticated, currentUserName 

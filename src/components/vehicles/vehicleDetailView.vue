@@ -1,3 +1,13 @@
+<!--
+  vehicleDetailView.vue - Vista de detalle de un vehículo individual.
+
+  Muestra imagen a tamaño completo, datos del vehículo, info del propietario,
+  y acciones contextuales según el rol del visitante:
+  - Dueño: toggle de estado (available ↔ sold).
+  - Autenticado (no dueño): botón "Hacer una pregunta" → inicia chat.
+  - No autenticado: botón que redirige al login.
+  Incluye funcionalidad de compartir enlace.
+-->
 <script setup>
 // Vista: Ficha detallada de un vehículo en específico
 import { ref, onMounted, computed } from 'vue';
@@ -9,7 +19,6 @@ const { startChat } = useMessages();
 const route = useRoute();
 const router = useRouter();
 
-// Extraer utilidades y validadores de la lógica de vehículos
 const { 
   getVehicleById, imageUrl, loading, updateVehicleStatus,
   checkIsOwner, isAuthenticated, formatPrice, showCopiedMessage, 
@@ -18,23 +27,22 @@ const {
 
 const vehicle = ref(null);
 
-// Reglas de estado de vista y permisos
 const isAvailable = computed(() => vehicle.value?.status === 'available');
 const isOwner = computed(() => vehicle.value && checkIsOwner(vehicle.value.user_id || vehicle.value.userId));
 
-// Eventos de usuario para la Vista de Detalles
+/** Toggle de estado del vehículo y actualizar UI local */
 const handleStatusToggle = async () => {
     const newStatus = vehicle.value.status === 'available' ? 'sold' : 'available';
     const success = await updateVehicleStatus(vehicle.value._id || vehicle.value.id, newStatus);
     if (success) vehicle.value.status = newStatus;
 };
 
-const goToMessages = async () => {
-    if (requireLoginForMessages()) {
-        await startChat(vehicle.value);
-    }
+/** Redirigir a mensajes (con validación de autenticación) */
+const goToMessages = () => {
+    requireLoginForMessages();
 };
 
+/** Copiar URL actual del detalle al portapapeles */
 const handleShare = () => {
     copyToClipboard(window.location.href);
 };
@@ -43,7 +51,7 @@ const goBack = () => {
     router.push('/vehicles');
 };
 
-// Carga el vehículo por prop de ruta (ID)
+/** Cargar datos del vehículo al montar el componente */
 onMounted(async () => {
   vehicle.value = await getVehicleById(route.params.id);
 });

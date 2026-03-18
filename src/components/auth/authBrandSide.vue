@@ -1,3 +1,9 @@
+<!--
+  authBrandSide.vue - Panel de branding para la pantalla de autenticación.
+
+  Muestra el logo, nombre de la marca (TICOAUTOS) y un subtítulo decorativo.
+  Incluye animación hover con efecto de escala y glow.
+-->
 <template>
   <div class="brand-side">
     <div class="brand-content">
@@ -26,3 +32,4 @@
 
 <script setup>
 </script>
+

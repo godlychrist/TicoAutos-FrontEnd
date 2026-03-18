@@ -1,3 +1,13 @@
+<!--
+  vehicleCard.vue - Tarjeta de vehículo para el catálogo.
+
+  Muestra imagen, marca, modelo, año, precio y estado del vehículo.
+  Las acciones varían según el contexto:
+  - Dueño: editar, eliminar, cambiar estado (available ↔ sold).
+  - Visitante: botón "Preguntar" que inicia un chat.
+  - Todos: compartir enlace público del vehículo.
+  Incluye overlay con botón "Ver Detalles" al hacer hover en la imagen.
+-->
 <template>
   <div class="vehicle-card" :style="{ '--delay': index * 0.1 + 's' }">
     <div class="card-image-wrapper">
@@ -9,9 +19,8 @@
       />
       <div :class="['badge', vehicle.status]">{{ vehicle.status === 'available' ? 'Disponible' : 'Vendido' }}</div>
       
-      <!-- Botones de Acción Profesionales -->
+      <!-- Botones de acción (compartir, editar, eliminar) -->
       <div class="card-actions-overlay">
-        <!-- Compartir  -->
         <div class="share-wrapper">
           <transition name="fade">
             <span v-if="showCopiedMessage" class="copied-tooltip">¡Copiado!</span>
@@ -21,7 +30,7 @@
           </button>
         </div>
 
-        <!-- Editar y Borrar (Solo dueño) -->
+        <!-- Botones exclusivos del dueño del vehículo -->
         <template v-if="isOwner">
           <button class="action-btn edit" @click.stop="handleEdit" title="Editar Vehículo">
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
@@ -63,7 +72,7 @@
           <span class="price">${{ formatPrice(vehicle.price) }}</span>
         </div>
         
-        <!-- Si es el DUEÑO: Botón para cambiar estado -->
+        <!-- Dueño: botón toggle de estado -->
         <button 
           v-if="isOwner" 
           @click.stop="handleStatusToggle"
@@ -72,7 +81,7 @@
           {{ vehicle.status === 'available' ? 'VENDIDO' : 'DISPONIBLE' }}
         </button>
 
-        <!-- Si NO es el dueño: Botón de preguntar (Requisito UTN) -->
+        <!-- Visitante: botón para iniciar chat -->
         <button 
           v-else 
           class="book-btn ask"
@@ -92,7 +101,6 @@ import { useVehicles } from '@/composables/useVehicles';
 import { useMessages } from '@/composables/useMessages';
 
 const { startChat } = useMessages();
-
 const router = useRouter();
 
 const props = defineProps({
@@ -100,23 +108,25 @@ const props = defineProps({
   index: Number
 });
 
-// Importamos todo directo de useVehicles.js
 const { 
   handleDeleteVehicle, openModal, imageUrl, updateVehicleStatus,
   checkIsOwner, formatPrice, showCopiedMessage, copyToClipboard
 } = useVehicles();
 
+/** Computed: verificar si el usuario actual es el dueño de este vehículo */
 const isOwner = computed(() => {
   const vehicleUserId = props.vehicle.user_id || props.vehicle.userId;
   return checkIsOwner(vehicleUserId);
 });
 
+/** Toggle del estado del vehículo (available ↔ sold) */
 const handleStatusToggle = async () => {
   const newStatus = props.vehicle.status === 'available' ? 'sold' : 'available';
   const vehicleId = props.vehicle._id || props.vehicle.id;
   await updateVehicleStatus(vehicleId, newStatus);
 };
 
+/** Eliminar con confirmación del usuario */
 const handleDelete = async (id) => {
   const isConfirmed = window.confirm(`¿Estás seguro de que deseas eliminar el ${props.vehicle.brand} ${props.vehicle.model}?`);
   if (isConfirmed) {
@@ -125,16 +135,19 @@ const handleDelete = async (id) => {
   }
 };
 
+/** Abrir modal de edición con los datos del vehículo precargados */
 const handleEdit = () => {
   openModal(props.vehicle);
 };
 
+/** Copiar URL pública del vehículo al portapapeles */
 const handleShare = () => {
   const vehicleId = props.vehicle._id || props.vehicle.id;
   const shareUrl = `${window.location.origin}/vehicles/${vehicleId}`;
   copyToClipboard(shareUrl);
 };
 
+/** Navegar a la vista de detalle del vehículo */
 const goToDetail = () => {
   const id = props.vehicle._id || props.vehicle.id;
   router.push(`/vehicles/${id}`);
@@ -142,3 +155,4 @@ const goToDetail = () => {
 </script>
 
 <style scoped src="../../assets/styles/vehicleCardScoped.css"></style>
+
