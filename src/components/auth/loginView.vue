@@ -88,15 +88,15 @@
 </template>
 
 <script setup>
+// Vista principal de Autenticación (Login / Registro)
 import authBrandSide from './authBrandSide.vue';
 import authInput from './authInput.vue';
 import socialLogins from './socialLogins.vue';
 import { useAuth } from '@/composables/useAuth.js';
 
+// Extraer estado reactivo y lógica de autenticación del composable
 const { form, isLogin, isLoading, error, handleSubmit } = useAuth();
-
 </script>
 
 <style src="../../assets/styles/auth.css"></style>
-
 <style scoped src="../../assets/styles/loginViewScoped.css"></style>
