@@ -76,7 +76,7 @@
         <button 
           v-else 
           class="book-btn ask"
-          @click.stop="$router.push('/messages')"
+          @click="startChat(vehicle._id, vehicle.user_id)"
         >
           PREGUNTAR
         </button>
@@ -89,6 +89,9 @@
 import { computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { useVehicles } from '@/composables/useVehicles';
+import { useMessages } from '@/composables/useMessages';
+
+const { startChat } = useMessages();
 
 const router = useRouter();
 
