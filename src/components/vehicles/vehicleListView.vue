@@ -1,4 +1,5 @@
 <script setup>
+// Vista: Catálogo General de Vehículos con filtros y paginación
 import { onMounted } from 'vue';
 import { useVehicles } from '@/composables/useVehicles.js';
 import { useAuth } from '@/composables/useAuth.js';
@@ -6,16 +7,15 @@ import vehicleCard from './vehicleCard.vue';
 import vehicleCreateModal from './vehicleCreateModal.vue';
 
 const { handleLogout } = useAuth();
-defineProps({
-  username: String
-});
+defineProps({ username: String });
 
-// estado global 
+// Importar estado global completo desde su respectivo composable
 const {
   vehicles, isModalOpen, openModal, getVehicles, brands, 
   filters, resetFilters, pagination, isAuthenticated, currentUserName 
 } = useVehicles();
 
+// Cargar lista de vehículos inicial al montar la vista
 onMounted(() => {
     getVehicles();
 });
