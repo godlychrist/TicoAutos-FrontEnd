@@ -17,6 +17,37 @@ export function useMessages() {
     const error = ref(null);
     const router = useRouter();
 
+    // ID del usuario autenticado (se recupera de localStorage al instanciar)
+    const currentUserId = ref(localStorage.getItem('userId') || '');
+
+    /**
+     * Formatear timestamp a hora legible (HH:MM AM/PM).
+     * Útil tanto en la lista de chats como en el hilo.
+     */
+    const formatTime = (dateValue) => {
+        if (!dateValue || Array.isArray(dateValue) || typeof dateValue !== 'string') return '';
+        try {
+            const date = new Date(dateValue);
+            if (isNaN(date.getTime())) return '';
+            return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
+        } catch (e) {
+            return '';
+        }
+    };
+
+    /** 
+     * Determinar el otro participante (comprador o vendedor) de una conversación
+     * para mostrar su nombre y avatar en la UI.
+     */
+    const getOtherUser = (conv) => {
+        if (!conv) return { username: '...' };
+        const myId = String(currentUserId.value);
+        if (String(conv.buyer_id) === myId) {
+            return conv.seller ?? { username: 'Vendedor' };
+        }
+        return conv.buyer ?? { username: 'Comprador' };
+    };
+
     /** Cargar la lista de todas las conversaciones del usuario autenticado */
     const loadConversations = async () => {
         loading.value = true;
@@ -80,7 +111,6 @@ export function useMessages() {
 
     /**
      * Enviar un mensaje y recargar la conversación para reflejar el nuevo mensaje.
-     * Retorna true si se envió correctamente, undefined si hubo error.
      */
     const sendMessage = async (conversationId, message) => {
         loading.value = true;
@@ -99,7 +129,6 @@ export function useMessages() {
 
     /**
      * Atajo: crear/reutilizar conversación y navegar directamente al chat.
-     * Usado desde las tarjetas y detalle de vehículo (botón "Preguntar").
      */
     const startChat = async (vehicleId, sellerId) => {
         const conversation = await createConversation(vehicleId, sellerId);
@@ -117,10 +146,13 @@ export function useMessages() {
         activeConversation,
         loading,
         error,
+        currentUserId,
+        formatTime,
+        getOtherUser,
         loadConversations,
         loadConversation,
         createConversation,
         sendMessage,
         startChat
     };
-}
+}
