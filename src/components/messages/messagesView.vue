@@ -9,44 +9,34 @@
 -->
 <script setup>
 // Vista protegida: Centro de Mensajería y Chats activos
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, watch, nextTick } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useMessages } from '@/composables/useMessages';
 
 const router = useRouter();
 const route = useRoute();
+const scrollContainer = ref(null);
 
 const { 
   loadConversations, conversations, loading, loadConversation, 
-  activeConversation, messages, sendMessage, error
+  activeConversation, messages, sendMessage, error,
+  currentUserId, formatTime, getOtherUser
 } = useMessages();
 
-// ID del usuario actual (string puro almacenado en login)
-const currentUserId = localStorage.getItem('userId') || '';
-
 /**
- * Formatear timestamp a hora legible.
- * Maneja edge cases de MongoDB (arrays vacíos, valores nulos).
+ * Auto-scroll al fondo del chat cuando cambian los mensajes
  */
-const formatTime = (dateValue) => {
-  if (!dateValue || Array.isArray(dateValue) || typeof dateValue !== 'string') return '';
-  try {
-    const date = new Date(dateValue);
-    if (isNaN(date.getTime())) return '';
-    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
-  } catch (e) {
-    return '';
+const scrollToBottom = async () => {
+  await nextTick();
+  if (scrollContainer.value) {
+    scrollContainer.value.scrollTop = scrollContainer.value.scrollHeight;
   }
 };
 
-/** Determinar el otro participante de la conversación (no el usuario actual) */
-const getOtherUser = (conv) => {
-  if (!conv) return { username: '...' };
-  if (conv.buyer_id === currentUserId) {
-    return conv.seller ?? { username: 'Usuario' };
-  }
-  return conv.buyer ?? { username: 'Usuario' };
-};
+// Observar cambios en el hilo de mensajes para bajar el scroll automáticamente
+watch(() => messages.value, () => {
+  scrollToBottom();
+}, { deep: true });
 
 const newMessage = ref('');
 
@@ -60,6 +50,7 @@ onMounted(async () => {
   if (route.query.id) {
     // Restaurar último chat abierto si el enlace tiene ID
     await loadConversation(route.query.id);
+    scrollToBottom();
   }
 });
 
@@ -67,6 +58,7 @@ onMounted(async () => {
 const selectConversation = async (id) => {
   await loadConversation(id);
   router.push({ query: { id } });
+  scrollToBottom();
 };
 
 /** Enviar mensaje y limpiar el input. Si falla, auto-dismiss del error en 3s */
@@ -76,6 +68,7 @@ const handleSendMessage = async () => {
   const sent = await sendMessage(activeConversation.value._id, newMessage.value);
   if (sent) {
     newMessage.value = ''; // Reset input
+    scrollToBottom();
   } else {
     setTimeout(() => { if(error) error.value = null; }, 3000);
   }
@@ -156,7 +149,8 @@ const handleSendMessage = async () => {
               </div>
             </header>
 
-            <div class="messages-thread">
+            <!-- HILO DE MENSAJES -->
+            <div class="messages-thread" ref="scrollContainer" id="chat-thread">
               <!-- Mensaje de Bienvenida si no hay mensajes -->
               <div v-if="messages.length === 0" class="welcome-hint">
                 <div class="hint-card">
